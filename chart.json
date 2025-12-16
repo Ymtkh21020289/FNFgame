@@ -38,6 +38,7 @@
     { "beat": 9.67, "lane": 0 },
     { "beat": 9.75, "lane": 1 },
     { "beat": 9.83, "lane": 3 },
-    { "beat": 10, "lane": 2 }
+    { "beat": 9.92, "lane": 2 },
+    { "beat": 10, "lane": 1 }
   ]
 }
