@@ -44,12 +44,12 @@ document.addEventListener("click", async () => {
   await audioCtx.resume();
 
   //const res = await fetch("music.mp3");
-  const buf = await res.arrayBuffer();
-  musicBuffer = await audioCtx.decodeAudioData(buf);
+  //const buf = await res.arrayBuffer();
+  //musicBuffer = await audioCtx.decodeAudioData(buf);
 
   //const source = audioCtx.createBufferSource();
-  source.buffer = musicBuffer;
-  source.connect(audioCtx.destination);
+  //source.buffer = musicBuffer;
+  //source.connect(audioCtx.destination);
 
   startTime = audioCtx.currentTime;
   //source.start(startTime);
