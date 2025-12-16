@@ -11,20 +11,25 @@ let audioCtx = new AudioContext();
 let startTime = null;
 //let musicBuffer = null;
 
-let notes = [
-  { time: 1.0, lane: 0, hit: false },
-  { time: 1.5, lane: 1, hit: false },
-  { time: 2.0, lane: 2, hit: false },
-  { time: 2.5, lane: 3, hit: false },
-  { time: 3.0, lane: 0, hit: false }
-];
-
 const keyToLane = {
   ArrowLeft: 0,
   ArrowUp: 1,
   ArrowDown: 2,
   ArrowRight: 3
 };
+
+let notes = [];
+
+fetch("chart.json")
+  .then(res => res.json())
+  .then(data => {
+    notes = data.notes.map(n => ({
+      time: n.time,
+      lane: n.lane,
+      hit: false
+    }));
+    console.log("chart loaded");
+  });
 
 function now() {
   return audioCtx.currentTime - startTime;
@@ -66,6 +71,7 @@ function drawJudgeLines() {
 }
 
 function gameLoop() {
+  if (notes.length === 0) return;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawJudgeLine();
   drawNotes();
