@@ -92,7 +92,7 @@ function spawnHoldParticle(lane) {
   const y = judgeY;
 
   particles.push({
-    x: x + (Math.random() - 0.5) * 20,
+    x: x + (Math.random() - 0.5) * 60,
     y: y + Math.random() * 10,
     vy: -1 - Math.random() * 1.5,
     life: 20 + Math.random() * 10
