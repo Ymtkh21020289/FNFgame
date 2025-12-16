@@ -6,6 +6,7 @@ const ctx = canvas.getContext("2d");
 const judgeY = 500;
 const speed = 500;
 const laneX = [80, 160, 240, 320];
+const pressedKeys = {};
 
 let audioCtx = new AudioContext();
 let startTime = null;
@@ -120,11 +121,19 @@ function checkMiss() {
   const t = now();
 
   for (let note of notes) {
-    if (note.type === "hold" && note.holding && t > note.endTime + 0.15) {
-      note.hit = true;
-      note.holding = false;
-      lastJudge = "Miss";
-      judgeTimer = 30;
+    if (note.type === "hold" && note.holding) {
+      const laneKeyPressed = Object.entries(keyToLane)
+        .some(([key, lane]) =>
+          lane === note.lane && pressedKeys[key]
+        );
+
+      // 押していないのに holding
+      if (!laneKeyPressed) {
+        note.holding = false;
+        note.hit = true;
+        lastJudge = "Miss";
+        judgeTimer = 30;
+      }
     }
   }
 }
@@ -183,35 +192,31 @@ document.addEventListener("click", async () => {
 
   gameLoop();
 });
+
 document.addEventListener("keydown", e => {
   const key = e.key.toLowerCase();
   if (!(key in keyToLane)) return;
-  if (startTime === null) return;
+  if (pressedKeys[key]) return; // 押しっぱなし防止
+  pressedKeys[key] = true;
 
   const lane = keyToLane[key];
   const t = now();
 
-  // このレーンの未処理ノーツを取得
   const candidates = notes.filter(
     n =>
       !n.hit &&
       n.lane === lane &&
       (
-        (n.type === "tap") ||
+        n.type === "tap" ||
         (n.type === "hold" && !n.holding)
       )
   );
 
   if (candidates.length === 0) return;
 
-  // 一番近いノーツ
   const note = candidates.reduce((a, b) =>
-    Math.abs(
-      (a.type === "tap" ? a.time : a.startTime) - t
-    ) <
-    Math.abs(
-      (b.type === "tap" ? b.time : b.startTime) - t
-    )
+    Math.abs((a.type === "tap" ? a.time : a.startTime) - t) <
+    Math.abs((b.type === "tap" ? b.time : b.startTime) - t)
       ? a
       : b
   );
@@ -220,48 +225,44 @@ document.addEventListener("keydown", e => {
   const diff = Math.abs(noteTime - t);
   const judge = getJudge(diff);
 
-  // ===== ここが④の追加場所 =====
+  if (judge === "Miss") return;
+
   if (note.type === "tap") {
-    if (judge !== "Miss") {
-      note.hit = true;
-      lastJudge = judge;
-      judgeTimer = 30;
-    }
+    note.hit = true;
   }
 
   if (note.type === "hold") {
-    if (judge !== "Miss") {
-      note.holding = true; // ← 押し始め判定
-      lastJudge = judge;
-      judgeTimer = 30;
-    }
+    note.holding = true;
   }
+
+  lastJudge = judge;
+  judgeTimer = 30;
 });
 
 document.addEventListener("keyup", e => {
   const key = e.key.toLowerCase();
+  pressedKeys[key] = false;
+
   if (!(key in keyToLane)) return;
 
   const lane = keyToLane[key];
   const t = now();
 
-  const holdNote = notes.find(
-    n => n.type === "hold" && n.lane === lane && n.holding && !n.hit
+  const note = notes.find(
+    n =>
+      n.type === "hold" &&
+      n.lane === lane &&
+      n.holding &&
+      !n.hit
   );
 
-  if (!holdNote) return;
+  if (!note) return;
 
-  const diff = Math.abs(holdNote.endTime - t);
+  const diff = Math.abs(note.endTime - t);
 
-  if (diff < 0.15) {
-    holdNote.hit = true;
-    lastJudge = "Good";
-  } else {
-    holdNote.hit = true;
-    lastJudge = "Miss";
-  }
+  note.hit = true;
+  note.holding = false;
 
-  holdNote.holding = false;
+  lastJudge = diff < 0.15 ? "Good" : "Miss";
   judgeTimer = 30;
 });
-
