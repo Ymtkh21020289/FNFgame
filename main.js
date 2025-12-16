@@ -35,11 +35,23 @@ function drawNotes() {
   }
 }
 
+function checkMiss() {
+  const t = now();
+
+  for (let note of notes) {
+    if (!note.hit && t > note.time + 0.15) {
+      note.hit = true;
+      console.log("Miss");
+    }
+  }
+}
+
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawJudgeLine();
   drawNotes();
   requestAnimationFrame(gameLoop);
+  checkMiss();
 }
 
 document.addEventListener("click", async () => {
