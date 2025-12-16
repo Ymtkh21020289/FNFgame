@@ -1,14 +1,43 @@
 {
   "bpmEvents": [
-    { "beat": 0, "bpm": 120 },
-    { "beat": 4, "bpm": 150 }
+    { "beat": 0, "bpm": 160 },
+    { "beat": 4, "bpm": 150 },
+    { "beat": 6, "bpm": 145 },
+    { "beat": 7, "bpm": 128 },
+    { "beat": 8, "bpm": 108 },
+    { "beat": 9, "bpm": 83 },
+    { "beat": 10, "bpm": 49 },
+    { "beat": 11, "bpm": 50 }
   ],
   "notes": [
-    { "beat": 1, "lane": 0 },
     { "beat": 2, "lane": 1 },
-    { "beat": 3, "lane": 2 },
-    { "beat": 4, "lane": 0 },
-    { "beat": 5, "lane": 1 },
-    { "beat": 6, "lane": 2 }
+    { "beat": 2, "lane": 2 },
+    { "beat": 4, "lane": 1 },
+    { "beat": 4, "lane": 2 },
+    { "beat": 6, "lane": 0 },
+    { "beat": 6.25, "lane": 1 },
+    { "beat": 6.5, "lane": 2 },
+    { "beat": 6.67, "lane": 3 },
+    { "beat": 6.83, "lane": 2 },
+    { "beat": 7, "lane": 1 },
+    { "beat": 7.25., "lane": 2 },
+    { "beat": 7.5, "lane": 3 },
+    { "beat": 7.75, "lane": 0 },
+    { "beat": 8, "lane": 1 },
+    { "beat": 8.17, "lane": 3 },
+    { "beat": 8.33, "lane": 2 },
+    { "beat": 8.5, "lane": 1 },
+    { "beat": 8.67, "lane": 0 },
+    { "beat": 8.75, "lane": 3 },
+    { "beat": 8.83, "lane": 2 },
+    { "beat": 9, "lane": 1 },
+    { "beat": 9.17, "lane": 0 },
+    { "beat": 9.33, "lane": 1 },
+    { "beat": 9.5, "lane": 3 },
+    { "beat": 9.583, "lane": 2 },
+    { "beat": 9.67, "lane": 0 },
+    { "beat": 9.75, "lane": 1 },
+    { "beat": 9.83, "lane": 3 },
+    { "beat": 10, "lane": 2 }
   ]
 }
