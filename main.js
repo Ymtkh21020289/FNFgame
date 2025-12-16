@@ -9,6 +9,8 @@ const laneX = [80, 160, 240, 320];
 
 let audioCtx = new AudioContext();
 let startTime = null;
+let lastJudge = "";
+let judgeTimer = 0;
 //let musicBuffer = null;
 
 const keyToLane = {
@@ -17,6 +19,19 @@ const keyToLane = {
   ArrowDown: 2,
   ArrowRight: 3
 };
+
+const JUDGE = [
+  { name: "Sick", time: 0.05 },
+  { name: "Good", time: 0.1 },
+  { name: "Bad",  time: 0.15 }
+];
+
+function getJudge(diff) {
+  for (let j of JUDGE) {
+    if (diff <= j.time) return j.name;
+  }
+  return "Miss";
+}
 
 function beatToTime(beat, bpmEvents) {
   let time = 0;
@@ -77,7 +92,8 @@ function checkMiss() {
   for (let note of notes) {
     if (!note.hit && t > note.time + 0.15) {
       note.hit = true;
-      console.log("Miss");
+      lastJudge = "Miss";
+      judgeTimer = 30;
     }
   }
 }
@@ -89,6 +105,24 @@ function drawJudgeLines() {
   }
 }
 
+function drawJudgeText() {
+  if (judgeTimer <= 0) return;
+
+  ctx.font = "32px sans-serif";
+  ctx.textAlign = "center";
+
+  let color = "white";
+  if (lastJudge === "Sick") color = "cyan";
+  if (lastJudge === "Good") color = "lime";
+  if (lastJudge === "Bad")  color = "orange";
+  if (lastJudge === "Miss") color = "red";
+
+  ctx.fillStyle = color;
+  ctx.fillText(lastJudge, canvas.width / 2, judgeY - 40);
+
+  judgeTimer--;
+}
+
 function gameLoop() {
   if (notes.length === 0) return;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -97,6 +131,7 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
   checkMiss();
   drawJudgeLines();
+  drawJudgeText();
 }
 
 document.addEventListener("click", async () => {
@@ -137,8 +172,11 @@ document.addEventListener("keydown", e => {
 
   const diff = Math.abs(note.time - t);
 
-  if (diff < 0.1) {
+  const judge = getJudge(diff);
+
+  if (judge !== "Miss") {
     note.hit = true;
-    console.log("Good!", e.key);
+    lastJudge = judge;
+    judgeTimer = 30; // フレーム数
   }
 });
