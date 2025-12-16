@@ -62,11 +62,26 @@ let notes = [];
 fetch("chart.json")
   .then(res => res.json())
   .then(data => {
-    notes = data.notes.map(n => ({
-      time: beatToTime(n.beat, data.bpmEvents),
-      lane: n.lane,
-      hit: false
-    }));
+    notes = data.notes.map(n => {
+      const startTime = beatToTime(n.beat, data.bpmEvents || [{ beat: 0, bpm: data.bpm }]);
+      if (n.type === "hold") {
+        const endTime = beatToTime(n.beat + n.length, data.bpmEvents || [{ beat: 0, bpm: data.bpm }]);
+        return {
+          type: "hold",
+          lane: n.lane,
+          startTime,
+          endTime,
+          holding: false,
+          hit: false
+        };
+      }
+      return {
+        type: "tap",
+        lane: n.lane,
+        time: startTime,
+        hit: false
+      };
+    });
     console.log("chart loaded");
   });
 
@@ -84,10 +99,20 @@ function drawNotes() {
   for (let note of notes) {
     if (note.hit) continue;
 
-    const y = judgeY - (note.time - t) * speed;
     const x = laneX[note.lane];
 
-    ctx.fillRect(x, y, 60, 20);
+    if (note.type === "tap") {
+      const y = judgeY - (note.time - t) * speed;
+      ctx.fillRect(x, y, 60, 20);
+    }
+
+    if (note.type === "hold") {
+      const yStart = judgeY - (note.startTime - t) * speed;
+      const yEnd   = judgeY - (note.endTime   - t) * speed;
+
+      ctx.fillRect(x + 20, yEnd, 20, yStart - yEnd); // 本体
+      ctx.fillRect(x, yStart, 60, 20);              // 頭
+    }
   }
 }
 
@@ -95,8 +120,9 @@ function checkMiss() {
   const t = now();
 
   for (let note of notes) {
-    if (!note.hit && t > note.time + 0.15) {
+    if (note.type === "hold" && note.holding && t > note.endTime + 0.15) {
       note.hit = true;
+      note.holding = false;
       lastJudge = "Miss";
       judgeTimer = 30;
     }
@@ -157,33 +183,85 @@ document.addEventListener("click", async () => {
 
   gameLoop();
 });
-
 document.addEventListener("keydown", e => {
   const key = e.key.toLowerCase();
-
   if (!(key in keyToLane)) return;
   if (startTime === null) return;
 
   const lane = keyToLane[key];
   const t = now();
 
+  // このレーンの未処理ノーツを取得
   const candidates = notes.filter(
-    n => !n.hit && n.lane === lane
+    n =>
+      !n.hit &&
+      n.lane === lane &&
+      (
+        (n.type === "tap") ||
+        (n.type === "hold" && !n.holding)
+      )
   );
 
   if (candidates.length === 0) return;
 
-  let note = candidates.reduce((a, b) =>
-    Math.abs(a.time - t) < Math.abs(b.time - t) ? a : b
+  // 一番近いノーツ
+  const note = candidates.reduce((a, b) =>
+    Math.abs(
+      (a.type === "tap" ? a.time : a.startTime) - t
+    ) <
+    Math.abs(
+      (b.type === "tap" ? b.time : b.startTime) - t
+    )
+      ? a
+      : b
   );
 
-  const diff = Math.abs(note.time - t);
+  const noteTime = note.type === "tap" ? note.time : note.startTime;
+  const diff = Math.abs(noteTime - t);
   const judge = getJudge(diff);
 
-  if (judge !== "Miss") {
-    note.hit = true;
-    lastJudge = judge;
-    judgeTimer = 30;
+  // ===== ここが④の追加場所 =====
+  if (note.type === "tap") {
+    if (judge !== "Miss") {
+      note.hit = true;
+      lastJudge = judge;
+      judgeTimer = 30;
+    }
   }
+
+  if (note.type === "hold") {
+    if (judge !== "Miss") {
+      note.holding = true; // ← 押し始め判定
+      lastJudge = judge;
+      judgeTimer = 30;
+    }
+  }
+});
+
+document.addEventListener("keyup", e => {
+  const key = e.key.toLowerCase();
+  if (!(key in keyToLane)) return;
+
+  const lane = keyToLane[key];
+  const t = now();
+
+  const holdNote = notes.find(
+    n => n.type === "hold" && n.lane === lane && n.holding && !n.hit
+  );
+
+  if (!holdNote) return;
+
+  const diff = Math.abs(holdNote.endTime - t);
+
+  if (diff < 0.15) {
+    holdNote.hit = true;
+    lastJudge = "Good";
+  } else {
+    holdNote.hit = true;
+    lastJudge = "Miss";
+  }
+
+  holdNote.holding = false;
+  judgeTimer = 30;
 });
 
