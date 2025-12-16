@@ -1,10 +1,11 @@
 {
-  "bpm": 120,
+  "bpmEvents": [
+    { "beat": 0, "bpm": 120 },
+    { "beat": 16, "bpm": 150 }
+  ],
   "notes": [
-    { "time": 1.0, "lane": 0 },
-    { "time": 1.5, "lane": 1 },
-    { "time": 2.0, "lane": 2 },
-    { "time": 2.5, "lane": 3 },
-    { "time": 3.0, "lane": 0 }
+    { "beat": 1, "lane": 0 },
+    { "beat": 8, "lane": 1 },
+    { "beat": 17, "lane": 2 }
   ]
 }
