@@ -61,7 +61,7 @@ function checkMiss() {
 function drawJudgeLines() {
   ctx.strokeStyle = "white";
   for (let x of laneX) {
-    ctx.strokeRect(x, judgeY, 60, 2);
+    ctx.strokeRect(x, judgeY, 60, 20);
   }
 }
 
