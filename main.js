@@ -7,6 +7,7 @@ const judgeY = 500;
 const speed = 500;
 const laneX = [80, 160, 240, 320];
 const pressedKeys = {};
+const particles = [];
 
 let audioCtx = new AudioContext();
 let startTime = null;
@@ -86,6 +87,42 @@ fetch("chart.json")
     console.log("chart loaded");
   });
 
+function spawnHoldParticle(lane) {
+  const x = laneX[lane] + 30; // レーン中央
+  const y = judgeY;
+
+  particles.push({
+    x: x + (Math.random() - 0.5) * 20,
+    y: y + Math.random() * 10,
+    vy: -1 - Math.random() * 1.5,
+    life: 20 + Math.random() * 10
+  });
+}
+
+function updateParticles() {
+  for (let p of particles) {
+    p.y += p.vy;
+    p.life--;
+  }
+
+  // 寿命切れを削除
+  for (let i = particles.length - 1; i >= 0; i--) {
+    if (particles[i].life <= 0) {
+      particles.splice(i, 1);
+    }
+  }
+}
+
+function drawParticles() {
+  ctx.fillStyle = "rgba(0, 255, 255, 0.8)";
+
+  for (let p of particles) {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
 function now() {
   return audioCtx.currentTime - startTime;
 }
@@ -113,6 +150,9 @@ function drawNotes() {
 
       ctx.fillRect(x + 20, yEnd, 20, yStart - yEnd); // 本体
       ctx.fillRect(x, yStart, 60, 20);              // 頭
+      if (note.holding) {
+        spawnHoldParticle(note.lane);
+      }
     }
   }
 }
@@ -170,6 +210,8 @@ function gameLoop() {
   drawNotes();
   requestAnimationFrame(gameLoop);
   checkMiss();
+  updateParticles();
+  drawParticles();
   drawJudgeLines();
   drawJudgeText();
 }
