@@ -4,7 +4,7 @@ const ctx = canvas.getContext("2d");
 
 // 定数
 const judgeY = 500;
-const speed = 300;
+const speed = 500;
 const laneX = [80, 160, 240, 320];
 
 let audioCtx = new AudioContext();
