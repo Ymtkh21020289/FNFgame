@@ -10,11 +10,11 @@ let audioCtx = new AudioContext();
 let startTime = null;
 //let musicBuffer = null;
 
-let note = {
-  time: 2.0,
-  lane: 0,
-  hit: false
-};
+let notes = [
+  { time: 1.5, lane: 0, hit: false },
+  { time: 2.0, lane: 0, hit: false },
+  { time: 2.5, lane: 0, hit: false }
+];
 
 function now() {
   return audioCtx.currentTime - startTime;
@@ -24,17 +24,21 @@ function drawJudgeLine() {
   ctx.fillRect(0, judgeY, canvas.width, 4);
 }
 
-function drawNote() {
-  if (note.hit) return;
+function drawNotes() {
   const t = now();
-  const y = judgeY - (note.time - t) * speed;
-  ctx.fillRect(160, y, 80, 20);
+
+  for (let note of notes) {
+    if (note.hit) continue;
+
+    const y = judgeY - (note.time - t) * speed;
+    ctx.fillRect(160, y, 80, 20);
+  }
 }
 
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawJudgeLine();
-  drawNote();
+  drawNotes();
   requestAnimationFrame(gameLoop);
 }
 
@@ -59,9 +63,22 @@ document.addEventListener("click", async () => {
 
 document.addEventListener("keydown", e => {
   if (e.key !== "ArrowLeft") return;
-  if (note.hit || startTime === null) return;
+  if (startTime === null) return;
 
   const t = now();
+
+  // レーン0の未ヒットノーツだけ
+  const candidates = notes.filter(
+    n => !n.hit && n.lane === 0
+  );
+
+  if (candidates.length === 0) return;
+
+  // 一番近いノーツ
+  let note = candidates.reduce((a, b) =>
+    Math.abs(a.time - t) < Math.abs(b.time - t) ? a : b
+  );
+
   const diff = Math.abs(note.time - t);
 
   if (diff < 0.1) {
