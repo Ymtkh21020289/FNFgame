@@ -17,7 +17,12 @@ const keyToLane = {
   ArrowLeft: 0,
   ArrowUp: 1,
   ArrowDown: 2,
-  ArrowRight: 3
+  ArrowRight: 3,
+
+  d: 0,
+  f: 1,
+  j: 2,
+  k: 3
 };
 
 const JUDGE = [
@@ -154,10 +159,12 @@ document.addEventListener("click", async () => {
 });
 
 document.addEventListener("keydown", e => {
-  if (!(e.key in keyToLane)) return;
+  const key = e.key.toLowerCase();
+
+  if (!(key in keyToLane)) return;
   if (startTime === null) return;
 
-  const lane = keyToLane[e.key];
+  const lane = keyToLane[key];
   const t = now();
 
   const candidates = notes.filter(
@@ -171,12 +178,12 @@ document.addEventListener("keydown", e => {
   );
 
   const diff = Math.abs(note.time - t);
-
   const judge = getJudge(diff);
 
   if (judge !== "Miss") {
     note.hit = true;
     lastJudge = judge;
-    judgeTimer = 30; // フレーム数
+    judgeTimer = 30;
   }
 });
+
