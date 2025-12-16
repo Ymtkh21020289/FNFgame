@@ -5,16 +5,26 @@ const ctx = canvas.getContext("2d");
 // 定数
 const judgeY = 500;
 const speed = 300;
+const laneX = [80, 160, 240, 320];
 
 let audioCtx = new AudioContext();
 let startTime = null;
 //let musicBuffer = null;
 
 let notes = [
-  { time: 1.5, lane: 0, hit: false },
-  { time: 2.0, lane: 0, hit: false },
-  { time: 2.5, lane: 0, hit: false }
+  { time: 1.0, lane: 0, hit: false },
+  { time: 1.5, lane: 1, hit: false },
+  { time: 2.0, lane: 2, hit: false },
+  { time: 2.5, lane: 3, hit: false },
+  { time: 3.0, lane: 0, hit: false }
 ];
+
+const keyToLane = {
+  ArrowLeft: 0,
+  ArrowUp: 1,
+  ArrowDown: 2,
+  ArrowRight: 3
+};
 
 function now() {
   return audioCtx.currentTime - startTime;
@@ -31,7 +41,9 @@ function drawNotes() {
     if (note.hit) continue;
 
     const y = judgeY - (note.time - t) * speed;
-    ctx.fillRect(160, y, 80, 20);
+    const x = laneX[note.lane];
+
+    ctx.fillRect(x, y, 60, 20);
   }
 }
 
@@ -46,12 +58,20 @@ function checkMiss() {
   }
 }
 
+function drawJudgeLines() {
+  ctx.strokeStyle = "white";
+  for (let x of laneX) {
+    ctx.strokeRect(x, judgeY, 60, 2);
+  }
+}
+
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawJudgeLine();
   drawNotes();
   requestAnimationFrame(gameLoop);
   checkMiss();
+  drawJudgeLines();
 }
 
 document.addEventListener("click", async () => {
@@ -74,19 +94,18 @@ document.addEventListener("click", async () => {
 });
 
 document.addEventListener("keydown", e => {
-  if (e.key !== "ArrowLeft") return;
+  if (!(e.key in keyToLane)) return;
   if (startTime === null) return;
 
+  const lane = keyToLane[e.key];
   const t = now();
 
-  // レーン0の未ヒットノーツだけ
   const candidates = notes.filter(
-    n => !n.hit && n.lane === 0
+    n => !n.hit && n.lane === lane
   );
 
   if (candidates.length === 0) return;
 
-  // 一番近いノーツ
   let note = candidates.reduce((a, b) =>
     Math.abs(a.time - t) < Math.abs(b.time - t) ? a : b
   );
@@ -95,6 +114,6 @@ document.addEventListener("keydown", e => {
 
   if (diff < 0.1) {
     note.hit = true;
-    console.log("Good!");
+    console.log("Good!", e.key);
   }
 });
