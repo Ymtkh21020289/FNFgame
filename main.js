@@ -18,13 +18,32 @@ const keyToLane = {
   ArrowRight: 3
 };
 
+function beatToTime(beat, bpmEvents) {
+  let time = 0;
+
+  for (let i = 0; i < bpmEvents.length; i++) {
+    const curr = bpmEvents[i];
+    const next = bpmEvents[i + 1];
+
+    const startBeat = curr.beat;
+    const endBeat = next ? next.beat : beat;
+
+    if (beat <= startBeat) break;
+
+    const beats = Math.min(beat, endBeat) - startBeat;
+    time += beats * (60 / curr.bpm);
+  }
+
+  return time;
+}
+
 let notes = [];
 
 fetch("chart.json")
   .then(res => res.json())
   .then(data => {
     notes = data.notes.map(n => ({
-      time: n.time,
+      time: beatToTime(n.beat, data.bpmEvents),
       lane: n.lane,
       hit: false
     }));
