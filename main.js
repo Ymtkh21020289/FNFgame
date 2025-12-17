@@ -230,6 +230,8 @@ function drawJudgeLines() {
 function drawJudgeText() {
   if (judgeTimer <= 0) return;
 
+  ctx.save(); // ★ 描画状態を保存
+
   ctx.font = "32px sans-serif";
   ctx.textAlign = "center";
 
@@ -242,12 +244,14 @@ function drawJudgeText() {
   ctx.fillStyle = color;
   ctx.fillText(lastJudge, canvas.width / 2, judgeY - 40);
 
+  ctx.restore(); // ★ 描画状態を元に戻す
+
   judgeTimer--;
 }
 
 function drawScore() {
   ctx.font = "20px sans-serif";
-  ctx.fillStyle = "white";
+  ctx.fillStyle = "black";
   ctx.textAlign = "left";
 
   ctx.fillText(`Score: ${score}`, 10, 30);
