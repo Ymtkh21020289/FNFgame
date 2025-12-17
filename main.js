@@ -344,7 +344,7 @@ function drawChartSelect() {
 }
 
 async function startGameWithChart(chartFile) {
-  const res = await fetch(`chartFile?t=${Date.now()}`);
+  const res = await fetch(chartFile);
   const data = await res.json();
   offset = data.offset ?? 0;
   bpmEvents = data.bpmEvents || [{ beat: 0, bpm: data.bpm }];
