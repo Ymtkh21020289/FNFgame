@@ -5,6 +5,7 @@ const ctx = canvas.getContext("2d");
 // 定数
 const judgeY = 500;
 const speed = 500;
+const baseSpeed = 500;
 const laneX = [80, 160, 240, 320];
 const pressedKeys = {};
 const particles = [];
@@ -192,7 +193,6 @@ function drawNotes() {
     ctx.fillStyle = color;
 
     if (note.type === "tap") {
-      const baseSpeed = 500;
       const dist = calcScrollDistance(
         note.time,
         t,
