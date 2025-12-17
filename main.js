@@ -136,7 +136,16 @@ function drawNotes() {
 
   for (let note of notes) {
     if (note.hit) continue;
-
+    
+    if (note.type === "hold" && note.holding) {
+      if (t >= note.endTime) {
+        note.hit = true;
+        note.holding = false;
+        lastJudge = "Sick";
+        judgeTimer = 30;
+        continue;
+      }
+    }
     const x = laneX[note.lane];
 
     if (note.type === "tap") {
@@ -300,11 +309,11 @@ document.addEventListener("keyup", e => {
 
   if (!note) return;
 
-  const diff = Math.abs(note.endTime - t);
-
-  note.hit = true;
-  note.holding = false;
-
-  lastJudge = diff < 0.15 ? "Good" : "Miss";
-  judgeTimer = 30;
+  // ★ 終点前に離したら Miss
+  if (t < note.endTime) {
+    note.holding = false;
+    note.hit = true;
+    lastJudge = "Miss";
+    judgeTimer = 30;
+  }
 });
