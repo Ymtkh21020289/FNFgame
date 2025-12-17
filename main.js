@@ -14,6 +14,12 @@ const SCORE_TABLE = {
   Bad: 100,
   Miss: 0
 };
+const LANE_COLORS = [
+  "#ff5555", // 左
+  "#55ff55", // 上
+  "#5555ff", // 下
+  "#ffff55"  // 右
+];
 
 // ★ スコア・コンボ関連
 let score = 0;
@@ -181,6 +187,8 @@ function drawNotes() {
       }
     }
     const x = laneX[note.lane];
+    const color = LANE_COLORS[note.lane];
+    ctx.fillStyle = color;
 
     if (note.type === "tap") {
       const y = judgeY - (note.time - t) * speed;
