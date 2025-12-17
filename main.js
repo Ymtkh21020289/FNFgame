@@ -167,7 +167,7 @@ function drawNotes() {
     if (note.type === "tap") {
       if (t > note.time + 0.15) {
         note.hit = true;
-        applyJudge(judge);
+        applyJudge("Miss");
         continue;
       }
     }
@@ -176,8 +176,7 @@ function drawNotes() {
       if (t >= note.endTime) {
         note.hit = true;
         note.holding = false;
-        lastJudge = "Sick";
-        judgeTimer = 30;
+        applyJudge("Sick");
         continue;
       }
     }
@@ -215,7 +214,7 @@ function checkMiss() {
       if (!laneKeyPressed) {
         note.holding = false;
         note.hit = true;
-        applyJudge(judge);
+        applyJudge("Miss");
       }
     }
   }
@@ -356,6 +355,6 @@ document.addEventListener("keyup", e => {
   if (t < note.endTime) {
     note.holding = false;
     note.hit = true;
-    applyJudge(judge);
+    applyJudge("Miss");
   }
 });
