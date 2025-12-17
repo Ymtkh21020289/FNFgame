@@ -28,8 +28,9 @@ let score = 0;
 let combo = 0;
 let maxCombo = 0;
 
-let audioCtx = new AudioContext();
-let startTime = null;
+const audioCtx = new AudioContext();
+let musicSource = null;
+let startTime = 0;
 let lastJudge = "";
 let judgeTimer = 0;
 
@@ -57,6 +58,22 @@ const charts = [
 ];
 
 let selectedChartIndex = 0;
+let music = "";
+
+async function loadMusic(url) {
+  const res = await fetch(url);
+  const arrayBuffer = await res.arrayBuffer();
+  return await audioCtx.decodeAudioData(arrayBuffer);
+}
+
+function playMusic(buffer) {
+  musicSource = audioCtx.createBufferSource();
+  musicSource.buffer = buffer;
+  musicSource.connect(audioCtx.destination);
+
+  startTime = audioCtx.currentTime; // ★ 超重要
+  musicSource.start(startTime);
+}
 
 function applyJudge(judge) {
   lastJudge = judge;
@@ -325,7 +342,7 @@ function drawChartSelect() {
   });
 }
 
-function startGameWithChart(chartFile) {
+async function startGameWithChart(chartFile) {
   fetch(chartFile)
     .then(res => res.json())
     .then(data => {
@@ -357,6 +374,8 @@ function startGameWithChart(chartFile) {
       score = 0;
       lastJudge = "";
       judgeTimer = 0;
+      const musicBuffer = await loadMusic(data.music);
+      playMusic(musicBuffer);
       gameState = "playing";
       gameLoop();
     });
