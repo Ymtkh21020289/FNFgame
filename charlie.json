@@ -5,7 +5,7 @@
   "music": "charlie.ogg",
   "offset": -1.0,
   "bpmEvents": [
-    { "beat": 0, "bpm": 200 },
+    { "beat": 0, "bpm": 120 },
     { "beat": 2, "bpm": 160 },
     { "beat": 4, "bpm": 150 },
     { "beat": 6, "bpm": 145 },
