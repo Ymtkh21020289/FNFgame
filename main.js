@@ -20,7 +20,7 @@ const LANE_COLORS = [
   "#5555ff", // 下
   "#ffff55"  // 右
 ];
-
+let gameState = "menu";
 // ★ スコア・コンボ関連
 let score = 0;
 let combo = 0;
@@ -30,7 +30,6 @@ let audioCtx = new AudioContext();
 let startTime = null;
 let lastJudge = "";
 let judgeTimer = 0;
-//let musicBuffer = null;
 
 const keyToLane = {
   ArrowLeft: 0,
@@ -266,35 +265,52 @@ function drawScore() {
   ctx.fillText(`Combo: ${combo}`, 10, 55);
 }
 
-function gameLoop() {
-  if (notes.length === 0) return;
+function drawMenu() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = "white";
+  ctx.textAlign = "center";
+
+  ctx.font = "40px sans-serif";
+  ctx.fillText("FNF Style Rhythm Game", canvas.width / 2, 200);
+
+  ctx.font = "24px sans-serif";
+  ctx.fillText("CLICK TO START", canvas.width / 2, 300);
+}
+
+function gameLoop() {
+  if (gameState === "menu") {
+    drawMenu();
+    requestAnimationFrame(gameLoop);
+    return;
+  }
+
+  if (notes.length === 0) return;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
   drawJudgeLine();
   drawNotes();
-  requestAnimationFrame(gameLoop);
   checkMiss();
   updateParticles();
   drawParticles();
   drawJudgeLines();
   drawJudgeText();
   drawScore();
+
+  requestAnimationFrame(gameLoop);
 }
 
 document.addEventListener("click", async () => {
-  if (startTime !== null) return;
+  if (gameState !== "menu") return;
 
   await audioCtx.resume();
 
-  //const res = await fetch("music.mp3");
-  //const buf = await res.arrayBuffer();
-  //musicBuffer = await audioCtx.decodeAudioData(buf);
-
-  //const source = audioCtx.createBufferSource();
-  //source.buffer = musicBuffer;
-  //source.connect(audioCtx.destination);
-
   startTime = audioCtx.currentTime;
-  //source.start(startTime);
+  gameState = "playing";
 
   gameLoop();
 });
