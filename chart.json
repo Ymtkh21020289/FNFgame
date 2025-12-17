@@ -64,6 +64,19 @@
     { "beat": 16, "lane": 1, "type": "tap" },
     { "beat": 16, "lane": 2, "type": "tap" },
     { "beat": 17, "lane": 0, "type": "tap" },
-    { "beat": 17, "lane": 2, "type": "tap" }
+    { "beat": 17, "lane": 2, "type": "tap" },
+    { "beat": 18, "lane": 3, "type": "tap" },
+    { "beat": 18.17, "lane": 0, "type": "tap" },
+    { "beat": 18.33, "lane": 2, "type": "tap" },
+    { "beat": 18.5, "lane": 1, "type": "tap" },
+    { "beat": 18.67, "lane": 1, "type": "tap" },
+    { "beat": 18.83, "lane": 3, "type": "tap" },
+    { "beat": 19, "lane": 2, "type": "tap" },
+    { "beat": 19.17, "lane": 0, "type": "tap" },
+    { "beat": 19.33, "lane": 1, "type": "tap" },
+    { "beat": 19.5, "lane": 2, "type": "tap" },
+    { "beat": 19.67, "lane": 0, "type": "tap" },
+    { "beat": 19.83, "lane": 3, "type": "tap" },
+    { "beat": 20, "lane": 1, "type": "hold", "length": 1 }
   ]
 }
