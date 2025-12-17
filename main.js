@@ -343,42 +343,48 @@ function drawChartSelect() {
 }
 
 async function startGameWithChart(chartFile) {
-  fetch(chartFile)
-    .then(res => res.json())
-    .then(data => {
-      bpmEvents = data.bpmEvents || [{ beat: 0, bpm: data.bpm }];
-      scrollEvents = data.scrollEvents || [{ beat: 0, speed: 1.0 }];
-      notes = data.notes.map(n => {
-        const startTime = beatToTime(n.beat, bpmEvents);
-        if (n.type === "hold") {
-          const endTime = beatToTime(n.beat + n.length, bpmEvents);
-          return {
-            type: "hold",
-            lane: n.lane,
-            startTime,
-            endTime,
-            holding: false,
-            hit: false
-          };
-        }
-        return {
-          type: "tap",
-          lane: n.lane,
-          time: startTime,
-          hit: false
-        };
-      });
-      // リセット
-      startTime = audioCtx.currentTime;
-      combo = 0;
-      score = 0;
-      lastJudge = "";
-      judgeTimer = 0;
-      const musicBuffer = await loadMusic(data.music);
-      playMusic(musicBuffer);
-      gameState = "playing";
-      gameLoop();
-    });
+  const res = await fetch(chartFile);
+  const data = await res.json();
+
+  bpmEvents = data.bpmEvents || [{ beat: 0, bpm: data.bpm }];
+  scrollEvents = data.scrollEvents || [{ beat: 0, speed: 1.0 }];
+
+  notes = data.notes.map(n => {
+    const startTime = beatToTime(n.beat, bpmEvents);
+
+    if (n.type === "hold") {
+      const endTime = beatToTime(n.beat + n.length, bpmEvents);
+      return {
+        type: "hold",
+        lane: n.lane,
+        startTime,
+        endTime,
+        holding: false,
+        hit: false
+      };
+    }
+
+    return {
+      type: "tap",
+      lane: n.lane,
+      time: startTime,
+      hit: false
+    };
+  });
+
+  // リセット
+  startTime = audioCtx.currentTime;
+  combo = 0;
+  score = 0;
+  lastJudge = "";
+  judgeTimer = 0;
+
+  // 🎵 曲再生
+  const musicBuffer = await loadMusic(data.music);
+  playMusic(musicBuffer);
+
+  gameState = "playing";
+  gameLoop();
 }
 
 function gameLoop() {
