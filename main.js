@@ -271,14 +271,14 @@ function drawMenu() {
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  ctx.fillStyle = "white";
+  ctx.fillStyle = "black";
   ctx.textAlign = "center";
 
   ctx.font = "40px sans-serif";
-  ctx.fillText("FNF Style Rhythm Game", canvas.width / 2, 200);
+  ctx.fillText("FNF風リズムゲーム", canvas.width / 2, 200);
 
   ctx.font = "24px sans-serif";
-  ctx.fillText("CLICK TO START", canvas.width / 2, 300);
+  ctx.fillText("クリックしてスタート", canvas.width / 2, 300);
 }
 
 function gameLoop() {
