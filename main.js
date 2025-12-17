@@ -327,6 +327,7 @@ function drawChartSelect() {
 }
 
 function startGameWithChart(chartFile) {
+  await audioCtx.resume();
   fetch(chartFile)
     .then(res => res.json())
     .then(data => {
@@ -356,7 +357,8 @@ function startGameWithChart(chartFile) {
       startTime = audioCtx.currentTime;
       combo = 0;
       score = 0;
-
+      lastJudge = "";
+      judgeTimer = 0;
       gameState = "playing";
       gameLoop();
     });
