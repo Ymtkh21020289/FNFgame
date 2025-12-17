@@ -2,7 +2,7 @@
   "scrollEvents": [
     { "beat": 0,  "speed": 1.0 }
   ],
-  "music": "チャーリーダッシュ！.ogg",
+  "music": "charlie.ogg",
   "bpmEvents": [
     { "beat": 0, "bpm": 160 },
     { "beat": 4, "bpm": 150 },
