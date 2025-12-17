@@ -72,7 +72,7 @@ function playMusic(buffer) {
   musicSource.buffer = buffer;
   musicSource.connect(audioCtx.destination);
 
-  startTime = audioCtx.currentTime + offset; // ★ 超重要
+  startTime = Math.max(audioCtx.currentTime + offset, 0); // ★ 超重要
   musicSource.start(startTime);
 }
 
