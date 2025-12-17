@@ -8,6 +8,17 @@ const speed = 500;
 const laneX = [80, 160, 240, 320];
 const pressedKeys = {};
 const particles = [];
+const SCORE_TABLE = {
+  Sick: 1000,
+  Good: 500,
+  Bad: 100,
+  Miss: 0
+};
+
+// ★ スコア・コンボ関連
+let score = 0;
+let combo = 0;
+let maxCombo = 0;
 
 let audioCtx = new AudioContext();
 let startTime = null;
@@ -32,6 +43,21 @@ const JUDGE = [
   { name: "Good", time: 0.1 },
   { name: "Bad",  time: 0.15 }
 ];
+
+function applyJudge(judge) {
+  lastJudge = judge;
+  judgeTimer = 30;
+
+  if (judge === "Miss") {
+    combo = 0;
+    return;
+  }
+
+  combo++;
+  if (combo > maxCombo) maxCombo = combo;
+
+  score += SCORE_TABLE[judge] || 0;
+}
 
 function getJudge(diff) {
   for (let j of JUDGE) {
@@ -141,8 +167,7 @@ function drawNotes() {
     if (note.type === "tap") {
       if (t > note.time + 0.15) {
         note.hit = true;
-        lastJudge = "Miss";
-        judgeTimer = 30;
+        applyJudge(judge);
         continue;
       }
     }
@@ -190,8 +215,7 @@ function checkMiss() {
       if (!laneKeyPressed) {
         note.holding = false;
         note.hit = true;
-        lastJudge = "Miss";
-        judgeTimer = 30;
+        applyJudge(judge);
       }
     }
   }
@@ -222,6 +246,15 @@ function drawJudgeText() {
   judgeTimer--;
 }
 
+function drawScore() {
+  ctx.font = "20px sans-serif";
+  ctx.fillStyle = "white";
+  ctx.textAlign = "left";
+
+  ctx.fillText(`Score: ${score}`, 10, 30);
+  ctx.fillText(`Combo: ${combo}`, 10, 55);
+}
+
 function gameLoop() {
   if (notes.length === 0) return;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -233,6 +266,7 @@ function gameLoop() {
   drawParticles();
   drawJudgeLines();
   drawJudgeText();
+  drawScore();
 }
 
 document.addEventListener("click", async () => {
@@ -296,8 +330,7 @@ document.addEventListener("keydown", e => {
     note.holding = true;
   }
 
-  lastJudge = judge;
-  judgeTimer = 30;
+  applyJudge(judge);
 });
 
 document.addEventListener("keyup", e => {
@@ -323,7 +356,6 @@ document.addEventListener("keyup", e => {
   if (t < note.endTime) {
     note.holding = false;
     note.hit = true;
-    lastJudge = "Miss";
-    judgeTimer = 30;
+    applyJudge(judge);
   }
 });
