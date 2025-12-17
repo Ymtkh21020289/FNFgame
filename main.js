@@ -33,6 +33,7 @@ let musicSource = null;
 let startTime = 0;
 let lastJudge = "";
 let judgeTimer = 0;
+let offset = 0
 
 const keyToLane = {
   ArrowLeft: 0,
@@ -71,7 +72,8 @@ function playMusic(buffer) {
   musicSource.buffer = buffer;
   musicSource.connect(audioCtx.destination);
 
-  startTime = audioCtx.currentTime; // ★ 超重要
+  const offset = data.offset ?? 0;
+  startTime = audioCtx.currentTime + offset; // ★ 超重要
   musicSource.start(startTime);
 }
 
@@ -155,7 +157,7 @@ function drawParticles() {
 }
 
 function now() {
-  return audioCtx.currentTime - startTime;
+  return audioCtx.currentTime + offset - startTime;
 }
 
 function drawJudgeLine() {
@@ -345,7 +347,7 @@ function drawChartSelect() {
 async function startGameWithChart(chartFile) {
   const res = await fetch(chartFile);
   const data = await res.json();
-
+  offset = data.offset ?? 0;
   bpmEvents = data.bpmEvents || [{ beat: 0, bpm: data.bpm }];
   scrollEvents = data.scrollEvents || [{ beat: 0, speed: 1.0 }];
 
@@ -373,7 +375,7 @@ async function startGameWithChart(chartFile) {
   });
 
   // リセット
-  startTime = audioCtx.currentTime;
+  startTime = audioCtx.currentTime + offset;
   combo = 0;
   score = 0;
   lastJudge = "";
