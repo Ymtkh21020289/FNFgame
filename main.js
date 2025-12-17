@@ -409,8 +409,9 @@ document.addEventListener("keydown", e => {
   }
 
   if (e.key === "Enter") {
-    await audioCtx.resume();
-    startGameWithChart(charts[selectedChartIndex].file);
+    audioCtx.resume().then(() => {
+      startGameWithChart(charts[selectedChartIndex].file);
+    });
   }
 });
 
