@@ -21,7 +21,8 @@ const LANE_COLORS = [
   "#5555ff", // 下
   "#ffff55"  // 右
 ];
-let gameState = "menu";
+let gameState = "select"; // "select" | "playing"
+
 // ★ スコア・コンボ関連
 let score = 0;
 let combo = 0;
@@ -49,6 +50,13 @@ const JUDGE = [
   { name: "Good", time: 0.1 },
   { name: "Bad",  time: 0.15 }
 ];
+
+const charts = [
+  { title: "チャーリーダッシュ！", file: "charlie.json" },
+  { title: "23時54分、陽の旅路へのプレリュード",   file: "2354_prelude.json" }
+];
+
+let selectedChartIndex = 0;
 
 function applyJudge(judge) {
   lastJudge = judge;
@@ -92,34 +100,6 @@ function beatToTime(beat, bpmEvents) {
 }
 
 let notes = [];
-
-fetch("chart.json")
-  .then(res => res.json())
-  .then(data => {
-    bpmEvents = data.bpmEvents || [{ beat: 0, bpm: data.bpm }];
-    scrollEvents = data.scrollEvents || [{ beat: 0, speed: 1.0 }];
-    notes = data.notes.map(n => {
-      const startTime = beatToTime(n.beat, bpmEvents);
-      if (n.type === "hold") {
-        const endTime = beatToTime(n.beat + n.length, bpmEvents);
-        return {
-          type: "hold",
-          lane: n.lane,
-          startTime,
-          endTime,
-          holding: false,
-          hit: false
-        };
-      }
-      return {
-        type: "tap",
-        lane: n.lane,
-        time: startTime,
-        hit: false
-      };
-    });
-    console.log("chart loaded");
-  });
 
 function spawnHoldParticle(lane) {
   const x = laneX[lane] + 30; // レーン中央
@@ -320,27 +300,86 @@ function drawMenu() {
   ctx.fillText("クリックしてスタート", canvas.width / 2, 300);
 }
 
+function drawChartSelect() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.textAlign = "center";
+
+  ctx.fillStyle = "white";
+  ctx.font = "36px sans-serif";
+  ctx.fillText("SELECT CHART", canvas.width / 2, 120);
+
+  ctx.font = "24px sans-serif";
+
+  charts.forEach((chart, i) => {
+    if (i === selectedChartIndex) {
+      ctx.fillStyle = "cyan";
+      ctx.fillText("> " + chart.title + " <", canvas.width / 2, 200 + i * 40);
+    } else {
+      ctx.fillStyle = "white";
+      ctx.fillText(chart.title, canvas.width / 2, 200 + i * 40);
+    }
+  });
+}
+
+function startGameWithChart(chartFile) {
+  fetch(chartFile)
+    .then(res => res.json())
+    .then(data => {
+      bpmEvents = data.bpmEvents || [{ beat: 0, bpm: data.bpm }];
+      scrollEvents = data.scrollEvents || [{ beat: 0, speed: 1.0 }];
+      notes = data.notes.map(n => {
+        const startTime = beatToTime(n.beat, bpmEvents);
+        if (n.type === "hold") {
+          const endTime = beatToTime(n.beat + n.length, bpmEvents);
+          return {
+            type: "hold",
+            lane: n.lane,
+            startTime,
+            endTime,
+            holding: false,
+            hit: false
+          };
+        }
+        return {
+          type: "tap",
+          lane: n.lane,
+          time: startTime,
+          hit: false
+        };
+      });
+      // リセット
+      startTime = audioCtx.currentTime;
+      combo = 0;
+      score = 0;
+
+      gameState = "playing";
+      gameLoop();
+    });
+}
+
 function gameLoop() {
-  if (gameState === "menu") {
-    drawMenu();
+  if (gameState === "select") {
+    drawChartSelect();
     requestAnimationFrame(gameLoop);
     return;
   }
 
-  if (notes.length === 0) return;
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  drawJudgeLine();
-  drawNotes();
-  checkMiss();
-  updateParticles();
-  drawParticles();
-  drawJudgeLines();
-  drawJudgeText();
-  drawScore();
-
-  requestAnimationFrame(gameLoop);
+  if (gameState === "playing") {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawJudgeLine();
+    drawNotes();
+    checkMiss();
+    updateParticles();
+    drawParticles();
+    drawJudgeLines();
+    drawJudgeText();
+    drawScore();
+    requestAnimationFrame(gameLoop);
+  }
 }
 
 document.addEventListener("click", async () => {
@@ -352,6 +391,24 @@ document.addEventListener("click", async () => {
   gameState = "playing";
 
   gameLoop();
+});
+
+document.addEventListener("keydown", e => {
+  if (gameState !== "select") return;
+
+  if (e.key === "ArrowUp") {
+    selectedChartIndex =
+      (selectedChartIndex - 1 + charts.length) % charts.length;
+  }
+
+  if (e.key === "ArrowDown") {
+    selectedChartIndex =
+      (selectedChartIndex + 1) % charts.length;
+  }
+
+  if (e.key === "Enter") {
+    startGameWithChart(charts[selectedChartIndex].file);
+  }
 });
 
 document.addEventListener("keydown", e => {
@@ -425,3 +482,5 @@ document.addEventListener("keyup", e => {
     applyJudge("Miss");
   }
 });
+
+gameLoop();
