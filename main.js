@@ -95,10 +95,12 @@ let notes = [];
 fetch("chart.json")
   .then(res => res.json())
   .then(data => {
+    bpmEvents = data.bpmEvents || [{ beat: 0, bpm: data.bpm }];
+    scrollEvents = data.scrollEvents || [{ beat: 0, speed: 1.0 }];
     notes = data.notes.map(n => {
-      const startTime = beatToTime(n.beat, data.bpmEvents || [{ beat: 0, bpm: data.bpm }]);
+      const startTime = beatToTime(n.beat, bpmEvents);
       if (n.type === "hold") {
-        const endTime = beatToTime(n.beat + n.length, data.bpmEvents || [{ beat: 0, bpm: data.bpm }]);
+        const endTime = beatToTime(n.beat + n.length, bpmEvents);
         return {
           type: "hold",
           lane: n.lane,
@@ -190,13 +192,24 @@ function drawNotes() {
     ctx.fillStyle = color;
 
     if (note.type === "tap") {
-      const y = judgeY - (note.time - t) * speed;
+      const baseSpeed = 500;
+      const dist = calcScrollDistance(
+        note.time,
+        t,
+        scrollEvents,
+        bpmEvents
+      );
+      const y = judgeY - dist * baseSpeed;
       ctx.fillRect(x, y, 60, 20);
     }
 
     if (note.type === "hold") {
-      const yStart = judgeY - (note.startTime - t) * speed;
-      const yEnd   = judgeY - (note.endTime   - t) * speed;
+      const startDist = calcScrollDistance(note.startTime, t, scrollEvents, bpmEvents);
+      const endDist   = calcScrollDistance(note.endTime, t, scrollEvents, bpmEvents);
+
+      const yStart = judgeY - startDist * baseSpeed;
+      const yEnd   = judgeY - endDist * baseSpeed;
+
 
       ctx.fillRect(x + 20, yEnd, 20, yStart - yEnd); // 本体
       ctx.fillRect(x, yStart, 60, 20);              // 頭
@@ -263,6 +276,32 @@ function drawScore() {
 
   ctx.fillText(`Score: ${score}`, 10, 30);
   ctx.fillText(`Combo: ${combo}`, 10, 55);
+}
+
+function calcScrollDistance(noteTime, nowTime, scrollEvents, bpmEvents) {
+  let distance = 0;
+
+  for (let i = 0; i < scrollEvents.length; i++) {
+    const curr = scrollEvents[i];
+    const next = scrollEvents[i + 1];
+
+    const startTime = beatToTime(curr.beat, bpmEvents);
+    const endTime = next
+      ? beatToTime(next.beat, bpmEvents)
+      : noteTime;
+
+    if (nowTime >= endTime) continue;
+    if (noteTime <= startTime) break;
+
+    const from = Math.max(nowTime, startTime);
+    const to   = Math.min(noteTime, endTime);
+
+    if (to > from) {
+      distance += (to - from) * curr.speed;
+    }
+  }
+
+  return distance;
 }
 
 function drawMenu() {
