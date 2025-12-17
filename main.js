@@ -165,7 +165,7 @@ function drawJudgeLine() {
 
 function drawNotes() {
   const t = now();
-
+  console.log("offset", offset );
   for (let note of notes) {
     if (note.hit) continue;
 
