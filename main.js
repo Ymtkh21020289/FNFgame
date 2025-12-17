@@ -72,7 +72,6 @@ function playMusic(buffer) {
   musicSource.buffer = buffer;
   musicSource.connect(audioCtx.destination);
 
-  const offset = data.offset ?? 0;
   startTime = audioCtx.currentTime + offset; // ★ 超重要
   musicSource.start(startTime);
 }
