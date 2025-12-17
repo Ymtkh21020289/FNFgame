@@ -54,7 +54,7 @@ function applyJudge(judge) {
   lastJudge = judge;
   judgeTimer = 30;
 
-  if (judge === "Miss") {
+  if (judge === "Miss" || judge === "Bad") {
     combo = 0;
     return;
   }
