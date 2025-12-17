@@ -136,7 +136,17 @@ function drawNotes() {
 
   for (let note of notes) {
     if (note.hit) continue;
-    
+
+    // ★ タップノーツのMiss判定
+    if (note.type === "tap") {
+      if (t > note.time + 0.15) {
+        note.hit = true;
+        lastJudge = "Miss";
+        judgeTimer = 30;
+        continue;
+      }
+    }
+
     if (note.type === "hold" && note.holding) {
       if (t >= note.endTime) {
         note.hit = true;
