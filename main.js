@@ -327,7 +327,6 @@ function drawChartSelect() {
 }
 
 function startGameWithChart(chartFile) {
-  await audioCtx.resume();
   fetch(chartFile)
     .then(res => res.json())
     .then(data => {
@@ -410,6 +409,7 @@ document.addEventListener("keydown", e => {
   }
 
   if (e.key === "Enter") {
+    await audioCtx.resume();
     startGameWithChart(charts[selectedChartIndex].file);
   }
 });
