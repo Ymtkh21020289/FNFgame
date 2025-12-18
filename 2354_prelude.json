@@ -9,10 +9,10 @@
     { "beat": 2, "bpm": 300 }
   ],
   "notes": [
+    { "beat": 2, "lane": 0, "type": "tap" },
     { "beat": 2, "lane": 1, "type": "tap" },
     { "beat": 2, "lane": 2, "type": "tap" },
     { "beat": 2, "lane": 3, "type": "tap" },
-    { "beat": 2, "lane": 0, "type": "tap" },
     { "beat": 3, "lane": 3, "type": "tap" },
     { "beat": 3.25, "lane": 2, "type": "tap" },
     { "beat": 3.5, "lane": 1, "type": "tap" },
@@ -21,6 +21,27 @@
     { "beat": 4.25, "lane": 2, "type": "tap" },
     { "beat": 4.5, "lane": 3, "type": "tap" },
     { "beat": 4.75, "lane": 2, "type": "tap" },
-    { "beat": 5, "lane": 1, "type": "tap" }
+    { "beat": 5, "lane": 1, "type": "tap" },
+    { "beat": 6, "lane": 0, "type": "tap" },
+    { "beat": 6, "lane": 1, "type": "tap" },
+    { "beat": 6, "lane": 2, "type": "tap" },
+    { "beat": 6, "lane": 3, "type": "tap" },
+    { "beat": 7, "lane": 0, "type": "tap" },
+    { "beat": 7, "lane": 1, "type": "tap" },
+    { "beat": 7, "lane": 2, "type": "tap" },
+    { "beat": 7, "lane": 3, "type": "tap" },
+    { "beat": 8, "lane": 0, "type": "tap" },
+    { "beat": 8, "lane": 1, "type": "tap" },
+    { "beat": 8, "lane": 2, "type": "tap" },
+    { "beat": 8, "lane": 3, "type": "tap" },
+    { "beat": 9, "lane": 0, "type": "tap" },
+    { "beat": 9.25, "lane": 1, "type": "tap" },
+    { "beat": 9.5, "lane": 2, "type": "tap" },
+    { "beat": 9.75, "lane": 3, "type": "tap" },
+    { "beat": 10, "lane": 2, "type": "tap" },
+    { "beat": 10.25, "lane": 1, "type": "tap" },
+    { "beat": 10.5, "lane": 0, "type": "tap" },
+    { "beat": 10.75, "lane": 1, "type": "tap" },
+    { "beat": 11, "lane": 2, "type": "tap" }
   ]
 }
