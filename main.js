@@ -242,8 +242,7 @@ function checkMiss() {
       note.startTime < t - JUDGE[JUDGE.length - 1].time
     ) {
       note.hit = true;   // 完全に消す
-      lastJudge = "Miss";
-      judgeTimer = 30;
+      applyJudge("Miss");
     }
   }
 }
