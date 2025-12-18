@@ -111,6 +111,17 @@
     { "beat": 29, "lane": 1, "type": "tap" },
     { "beat": 29.25, "lane": 1, "type": "tap" },
     { "beat": 29.75, "lane": 2, "type": "tap" },
-    { "beat": 30, "lane": 0, "type": "tap" }
+    { "beat": 30, "lane": 0, "type": "tap" },
+    { "beat": 30.5, "lane": 3, "type": "hold", "length": 0.25 },
+    { "beat": 31, "lane": 1, "type": "hold", "length": 0.25 },
+    { "beat": 31.5, "lane": 2, "type": "hold", "length": 0.25 },
+    { "beat": 32, "lane": 1, "type": "hold", "length": 0.25 },
+    { "beat": 32.5, "lane": 0, "type": "hold", "length": 1.5 },
+    { "beat": 34.5, "lane": 1, "type": "hold", "length": 0.25 },
+    { "beat": 35, "lane": 1, "type": "hold", "length": 0.25 },
+    { "beat": 35.5, "lane": 3, "type": "hold", "length": 0.25 },
+    { "beat": 36, "lane": 2, "type": "hold", "length": 0.25 },
+    { "beat": 36.5, "lane": 1, "type": "hold", "length": 0.25 },
+    { "beat": 37, "lane": 3, "type": "hold", "length": 2 }
   ]
 }
