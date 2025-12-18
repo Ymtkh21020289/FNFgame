@@ -6,6 +6,7 @@ const ctx = canvas.getContext("2d");
 const judgeY = 500;
 const speed = 500;
 const baseSpeed = 500;
+const NOTE_SIZE = 40;   // 正方形の一辺
 const laneX = [80, 160, 240, 320];
 const pressedKeys = {};
 const particles = [];
@@ -159,8 +160,11 @@ function now() {
   return audioCtx.currentTime + offset - startTime;
 }
 
-function drawJudgeLine() {
-  ctx.fillRect(0, judgeY, canvas.width, 4);
+function drawJudgeLines() {
+  ctx.strokeStyle = "black";
+  for (let x of laneX) {
+    ctx.strokeRect(x, judgeY, NOTE_SIZE, NOTE_SIZE);
+  }
 }
 
 function drawNotes() {
@@ -198,7 +202,7 @@ function drawNotes() {
         bpmEvents
       );
       const y = judgeY - dist * baseSpeed;
-      ctx.fillRect(x, y, 60, 20);
+      ctx.fillRect(x, y, NOTE_SIZE, NOTE_SIZE);
     }
 
     if (note.type === "hold") {
@@ -209,8 +213,16 @@ function drawNotes() {
       const yEnd   = judgeY - endDist * baseSpeed;
 
 
-      ctx.fillRect(x + 20, yEnd, 20, yStart - yEnd); // 本体
-      ctx.fillRect(x, yStart, 60, 20);              // 頭
+      const bodyWidth = NOTE_SIZE / 3;
+      const bodyX = x + (NOTE_SIZE - bodyWidth) / 2;
+
+      ctx.fillRect(
+        bodyX,
+        yEnd + NOTE_SIZE,
+        bodyWidth,
+        yStart - yEnd - NOTE_SIZE
+      );
+      ctx.fillRect(x, yStart, NOTE_SIZE, NOTE_SIZE); // 頭
       if (note.holding) {
         spawnHoldParticle(note.lane);
       }
