@@ -160,7 +160,7 @@ function now() {
   return audioCtx.currentTime + offset - startTime;
 }
 
-function drawJudgeLines() {
+function drawJudgeLine() {
   ctx.strokeStyle = "black";
   for (let x of laneX) {
     ctx.strokeRect(x, judgeY, NOTE_SIZE, NOTE_SIZE);
