@@ -129,6 +129,7 @@
     { "beat": 40.5, "lane": 2, "type": "hold", "length": 2 },
     { "beat": 40.75, "lane": 3, "type": "tap" },
     { "beat": 41, "lane":3 , "type": "hold", "length": 1.5 },
+    { "beat": 43, "lane":2 , "type": "hold", "length": 0.25 },
     { "beat": 43.5, "lane": 1, "type": "hold", "length": 0.25 },
     { "beat": 44, "lane": 2, "type": "hold", "length": 0.25 },
     { "beat": 44.5, "lane": 0, "type": "hold", "length": 0.25 },
