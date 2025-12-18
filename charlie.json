@@ -128,7 +128,7 @@
     { "beat": 40.5, "lane": 1, "type": "hold", "length": 0.25 },
     { "beat": 41, "lane": 2, "type": "hold", "length": 0.25 },
     { "beat": 41.5, "lane": 0, "type": "hold", "length": 0.25 },
-    { "beat": 42, "lane":3 , "type": "hold", "length": 2 },
+    { "beat": 42, "lane":3 , "type": "hold", "length": 1 },
     { "beat": 44.5, "lane": 1, "type": "hold", "length": 0.25 },
     { "beat": 45, "lane": 2, "type": "hold", "length": 0.25 },
     { "beat": 45.5, "lane": 0, "type": "hold", "length": 0.25 },
