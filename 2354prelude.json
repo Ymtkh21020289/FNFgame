@@ -1,1 +1,26 @@
-
+{
+  "scrollEvents": [
+    { "beat": 0,  "speed": 1.75 }
+  ],
+  "music": "charlie.ogg",
+  "offset": 0,
+  "bpmEvents": [
+    { "beat": 0, "bpm": 120 },
+    { "beat": 2, "bpm": 300 }
+  ],
+  "notes": [
+    { "beat": 2, "lane": 1, "type": "tap" },
+    { "beat": 2, "lane": 2, "type": "tap" },
+    { "beat": 2, "lane": 3, "type": "tap" },
+    { "beat": 2, "lane": 0, "type": "tap" },
+    { "beat": 3, "lane": 3, "type": "tap" },
+    { "beat": 3.25, "lane": 2, "type": "tap" },
+    { "beat": 3.5, "lane": 1, "type": "tap" },
+    { "beat": 3.75, "lane": 0, "type": "tap" },
+    { "beat": 4, "lane": 1, "type": "tap" },
+    { "beat": 4.25, "lane": 2, "type": "tap" },
+    { "beat": 4.5, "lane": 3, "type": "tap" },
+    { "beat": 4.75, "lane": 2, "type": "tap" },
+    { "beat": 5, "lane": 1, "type": "tap" }
+  ]
+}
