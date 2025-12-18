@@ -1,6 +1,6 @@
 {
   "scrollEvents": [
-    { "beat": 0,  "speed": 1.0 }
+    { "beat": 0,  "speed": 1.3 }
   ],
   "music": "charlie.ogg",
   "offset": 0,
