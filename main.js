@@ -216,7 +216,7 @@ function drawNotes() {
         yStartCenter = judgeCenterY;
       } else {
         // 通常時：時間で降ってくる
-        yStartCenter = judgeCenterY - startDist * speed;
+        yStartCenter = judgeCenterY
       }
       const yStart = yStartCenter - startDist * baseSpeed;
       const yEnd   = yStartCenter - endDist * baseSpeed;
