@@ -516,6 +516,7 @@ document.addEventListener("keydown", e => {
   if (judge === "Miss") return;
 
   if (note.type === "tap") {
+    note.hit = true;
     note.judged = true;
   }
 
