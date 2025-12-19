@@ -184,7 +184,7 @@ function drawNotes() {
 
     if (note.type === "hold" && note.holding) {
       if (t >= note.endTime) {
-        note.judged = true;
+        note.hit = true;
         note.holding = false;
         applyJudge("Sick");
         continue;
