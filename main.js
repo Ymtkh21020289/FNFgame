@@ -175,8 +175,8 @@ function drawNotes() {
 
     // ★ タップノーツのMiss判定
     if (note.type === "tap") {
-      if (t > note.time + 0.5) {
-        note.judged = true;
+      if (t > note.time + 0.15) {
+        note.judge = true;
         applyJudge("Miss");
         continue;
       }
@@ -317,6 +317,10 @@ function drawScore() {
 function calcScrollDistance(noteTime, nowTime, scrollEvents, bpmEvents) {
   let distance = 0;
 
+  const dir = Math.sign(noteTime - nowTime);
+  const t0 = Math.min(nowTime, noteTime);
+  const t1 = Math.max(nowTime, noteTime);
+
   for (let i = 0; i < scrollEvents.length; i++) {
     const curr = scrollEvents[i];
     const next = scrollEvents[i + 1];
@@ -324,21 +328,20 @@ function calcScrollDistance(noteTime, nowTime, scrollEvents, bpmEvents) {
     const startTime = beatToTime(curr.beat, bpmEvents);
     const endTime = next
       ? beatToTime(next.beat, bpmEvents)
-      : noteTime;
+      : t1;
 
-    if (nowTime >= endTime) continue;
-    if (noteTime <= startTime) break;
+    if (t0 >= endTime) continue;
+    if (t1 <= startTime) break;
 
-    const from = Math.max(nowTime, startTime);
-    const to   = Math.min(noteTime, endTime);
+    const from = Math.max(t0, startTime);
+    const to   = Math.min(t1, endTime);
 
-    distance += (to - from) * curr.speed;
     if (to > from) {
-      
+      distance += (to - from) * curr.speed;
     }
   }
 
-  return distance;
+  return distance * dir;
 }
 
 function drawMenu() {
