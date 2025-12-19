@@ -7,6 +7,7 @@ const judgeY = 500;
 const speed = 500;
 const baseSpeed = 500;
 const NOTE_SIZE = 40;   // 正方形の一辺
+const judgeCenterY = judgeY + NOTE_SIZE / 2;
 const laneX = [80, 160, 240, 320];
 const pressedKeys = {};
 const particles = [];
@@ -200,7 +201,7 @@ function drawNotes() {
         scrollEvents,
         bpmEvents
       );
-      const y = judgeY - dist * baseSpeed;
+      const y = judgeCenterY - dist * baseSpeed;
       ctx.fillRect(x, y, NOTE_SIZE, NOTE_SIZE);
     }
 
@@ -208,8 +209,8 @@ function drawNotes() {
       const startDist = calcScrollDistance(note.startTime, t, scrollEvents, bpmEvents);
       const endDist   = calcScrollDistance(note.endTime, t, scrollEvents, bpmEvents);
 
-      const yStart = judgeY - startDist * baseSpeed;
-      const yEnd   = judgeY - endDist * baseSpeed;
+      const yStart = judgeCenterY - startDist * baseSpeed;
+      const yEnd   = judgeCenterY - endDist * baseSpeed;
 
 
       const bodyWidth = NOTE_SIZE / 3;
