@@ -231,7 +231,10 @@ function drawNotes() {
         bodyWidth,
         yStart - yEnd - NOTE_SIZE
       );
-      ctx.fillRect(x, yStart, NOTE_SIZE, NOTE_SIZE); // 頭
+      if (!note.holding) {
+        
+        ctx.fillRect(x, yStart, NOTE_SIZE, NOTE_SIZE); // 頭
+      }
       if (note.holding) {
         spawnHoldParticle(note.lane);
       }
