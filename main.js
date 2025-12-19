@@ -208,9 +208,18 @@ function drawNotes() {
     if (note.type === "hold") {
       const startDist = calcScrollDistance(note.startTime, t, scrollEvents, bpmEvents);
       const endDist   = calcScrollDistance(note.endTime, t, scrollEvents, bpmEvents);
+      
+      let yStartCenter;
 
-      const yStart = judgeCenterY - startDist * baseSpeed;
-      const yEnd   = judgeCenterY - endDist * baseSpeed;
+      if (note.holding) {
+        // ★ ホールド中：頭を判定ラインに固定
+        yStartCenter = judgeCenterY;
+      } else {
+        // 通常時：時間で降ってくる
+        yStartCenter = judgeCenterY - (note.startTime - t) * speed;
+      }
+      const yStart = yStartCenter - startDist * baseSpeed;
+      const yEnd   = yStartCenter - endDist * baseSpeed;
 
 
       const bodyWidth = NOTE_SIZE / 3;
