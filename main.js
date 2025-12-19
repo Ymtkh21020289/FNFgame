@@ -176,7 +176,7 @@ function drawNotes() {
     // ★ タップノーツのMiss判定
     if (note.type === "tap") {
       if (t > note.time + 0.5) {
-        note.hit = true;
+        note.judged = true;
         applyJudge("Miss");
         continue;
       }
@@ -184,7 +184,7 @@ function drawNotes() {
 
     if (note.type === "hold" && note.holding) {
       if (t >= note.endTime) {
-        note.hit = true;
+        note.judged = true;
         note.holding = false;
         applyJudge("Sick");
         continue;
@@ -203,6 +203,9 @@ function drawNotes() {
       );
       const y = judgeCenterY - dist * baseSpeed;
       ctx.fillRect(x, y, NOTE_SIZE, NOTE_SIZE);
+      if (y > canvas.height + NOTE_SIZE) {
+        note.hit = true; // 完全に流れ切った
+      }
     }
 
     if (note.type === "hold") {
@@ -220,7 +223,9 @@ function drawNotes() {
       }
       const yStart = yStartCenter - startDist * baseSpeed;
       const yEnd   = yStartCenter - endDist * baseSpeed;
-
+      if (yEnd > canvas.height + NOTE_SIZE) {
+        note.hit = true; // 完全に流れ切った
+      }
 
       const bodyWidth = NOTE_SIZE / 3;
       const bodyX = x + (NOTE_SIZE - bodyWidth) / 2;
@@ -255,7 +260,7 @@ function checkMiss() {
       // 押していないのに holding
       if (!laneKeyPressed) {
         note.holding = false;
-        note.hit = true;
+        note.judge = true;
         applyJudge("Miss");
       }
     }
@@ -265,7 +270,7 @@ function checkMiss() {
       !note.hit &&
       note.startTime < t - JUDGE[JUDGE.length - 1].time
     ) {
-      note.hit = true;   // 完全に消す
+      note.judged = true;   // 完全に消す
       applyJudge("Miss");
     }
   }
@@ -510,7 +515,7 @@ document.addEventListener("keydown", e => {
   if (judge === "Miss") return;
 
   if (note.type === "tap") {
-    note.hit = true;
+    note.judged = true;
   }
 
   if (note.type === "hold") {
@@ -542,7 +547,7 @@ document.addEventListener("keyup", e => {
   // ★ 終点前に離したら Miss
   if (t < note.endTime) {
     note.holding = false;
-    note.hit = true;
+    note.judged = true;
     applyJudge("Miss");
   }
 });
