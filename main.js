@@ -267,7 +267,7 @@ function checkMiss() {
     if (
       note.type === "hold" &&
       !note.holding &&
-      !note.hit &&
+      !note.judged &&
       note.startTime < t - JUDGE[JUDGE.length - 1].time
     ) {
       note.judged = true;   // 完全に消す
