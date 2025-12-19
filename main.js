@@ -175,7 +175,7 @@ function drawNotes() {
 
     // ★ タップノーツのMiss判定
     if (note.type === "tap") {
-      if (t > note.time + 0.15) {
+      if (t > note.time + 0.5) {
         note.hit = true;
         applyJudge("Miss");
         continue;
