@@ -394,7 +394,8 @@ async function startGameWithChart(chartFile) {
         startTime,
         endTime,
         holding: false,
-        hit: false
+        hit: false,
+        judged: false // 判定済みか
       };
     }
 
@@ -402,7 +403,8 @@ async function startGameWithChart(chartFile) {
       type: "tap",
       lane: n.lane,
       time: startTime,
-      hit: false
+      hit: false,
+      judged: false // 判定済みか
     };
   });
 
