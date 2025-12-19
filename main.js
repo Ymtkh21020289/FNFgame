@@ -175,8 +175,8 @@ function drawNotes() {
 
     // ★ タップノーツのMiss判定
     if (note.type === "tap") {
-      if (t > note.time + 0.15) {
-        note.judge = true;
+      if (t > note.time + 0.5) {
+        note.hit = true;
         applyJudge("Miss");
         continue;
       }
@@ -203,9 +203,6 @@ function drawNotes() {
       );
       const y = judgeCenterY - dist * baseSpeed;
       ctx.fillRect(x, y, NOTE_SIZE, NOTE_SIZE);
-      if (y > canvas.height + NOTE_SIZE) {
-        note.hit = true; // 完全に流れ切った
-      }
     }
 
     if (note.type === "hold") {
@@ -223,9 +220,7 @@ function drawNotes() {
       }
       const yStart = yStartCenter - startDist * baseSpeed;
       const yEnd   = yStartCenter - endDist * baseSpeed;
-      if (yEnd > canvas.height + NOTE_SIZE) {
-        note.hit = true; // 完全に流れ切った
-      }
+
 
       const bodyWidth = NOTE_SIZE / 3;
       const bodyX = x + (NOTE_SIZE - bodyWidth) / 2;
@@ -260,17 +255,17 @@ function checkMiss() {
       // 押していないのに holding
       if (!laneKeyPressed) {
         note.holding = false;
-        note.judge = true;
+        note.hit = true;
         applyJudge("Miss");
       }
     }
     if (
       note.type === "hold" &&
       !note.holding &&
-      !note.judged &&
+      !note.hit &&
       note.startTime < t - JUDGE[JUDGE.length - 1].time
     ) {
-      note.judged = true;   // 完全に消す
+      note.hit = true;   // 完全に消す
       applyJudge("Miss");
     }
   }
@@ -317,10 +312,6 @@ function drawScore() {
 function calcScrollDistance(noteTime, nowTime, scrollEvents, bpmEvents) {
   let distance = 0;
 
-  const dir = Math.sign(noteTime - nowTime);
-  const t0 = Math.min(nowTime, noteTime);
-  const t1 = Math.max(nowTime, noteTime);
-
   for (let i = 0; i < scrollEvents.length; i++) {
     const curr = scrollEvents[i];
     const next = scrollEvents[i + 1];
@@ -328,20 +319,20 @@ function calcScrollDistance(noteTime, nowTime, scrollEvents, bpmEvents) {
     const startTime = beatToTime(curr.beat, bpmEvents);
     const endTime = next
       ? beatToTime(next.beat, bpmEvents)
-      : t1;
+      : noteTime;
 
-    if (t0 >= endTime) continue;
-    if (t1 <= startTime) break;
+    if (nowTime >= endTime) continue;
+    if (noteTime <= startTime) break;
 
-    const from = Math.max(t0, startTime);
-    const to   = Math.min(t1, endTime);
+    const from = Math.max(nowTime, startTime);
+    const to   = Math.min(noteTime, endTime);
 
     if (to > from) {
       distance += (to - from) * curr.speed;
     }
   }
 
-  return distance * dir;
+  return distance;
 }
 
 function drawMenu() {
@@ -403,8 +394,7 @@ async function startGameWithChart(chartFile) {
         startTime,
         endTime,
         holding: false,
-        hit: false,
-        judged: false // 判定済みか
+        hit: false
       };
     }
 
@@ -412,8 +402,7 @@ async function startGameWithChart(chartFile) {
       type: "tap",
       lane: n.lane,
       time: startTime,
-      hit: false,
-      judged: false // 判定済みか
+      hit: false
     };
   });
 
@@ -520,7 +509,6 @@ document.addEventListener("keydown", e => {
 
   if (note.type === "tap") {
     note.hit = true;
-    note.judged = true;
   }
 
   if (note.type === "hold") {
@@ -552,7 +540,7 @@ document.addEventListener("keyup", e => {
   // ★ 終点前に離したら Miss
   if (t < note.endTime) {
     note.holding = false;
-    note.judged = true;
+    note.hit = true;
     applyJudge("Miss");
   }
 });
