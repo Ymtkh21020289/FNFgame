@@ -332,8 +332,9 @@ function calcScrollDistance(noteTime, nowTime, scrollEvents, bpmEvents) {
     const from = Math.max(nowTime, startTime);
     const to   = Math.min(noteTime, endTime);
 
+    distance += (to - from) * curr.speed;
     if (to > from) {
-      distance += (to - from) * curr.speed;
+      
     }
   }
 
