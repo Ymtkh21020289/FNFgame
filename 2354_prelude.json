@@ -2,7 +2,7 @@
   "scrollEvents": [
     { "beat": 0,  "speed": 2 }
   ],
-  "music": "charlie.ogg",
+  "music": "2354_prelude.ogg",
   "offset": 0,
   "bpmEvents": [
     { "beat": 0, "bpm": 120 },
