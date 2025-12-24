@@ -5,7 +5,7 @@
   "music": "2354_prelude.ogg",
   "offset": 0.12,
   "bpmEvents": [
-    { "beat": 0, "bpm": 300 },
+    { "beat": 0, "bpm": 250 },
     { "beat": 2, "bpm": 300 }
   ],
   "notes": [
