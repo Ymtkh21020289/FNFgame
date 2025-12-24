@@ -224,13 +224,19 @@ function drawNotes() {
 
       const bodyWidth = NOTE_SIZE / 3;
       const bodyX = x + (NOTE_SIZE - bodyWidth) / 2;
+      let bodyTop = yEnd + NOTE_SIZE;   // 胴体の上
+      let bodyBottom = yStart;         // 胴体の下（頭の直前）
 
-      ctx.fillRect(
-        bodyX,
-        yEnd + NOTE_SIZE,
-        bodyWidth,
-        yStart - yEnd - NOTE_SIZE
-      );
+      // ★ ホールド中はヒットボックスで止める
+      if (note.holding) {
+        bodyBottom = Math.min(bodyBottom, judgeTopY);
+      }
+
+      const bodyHeight = bodyBottom - bodyTop;
+
+      if (bodyHeight > 0) {
+        ctx.fillRect(bodyX, bodyTop, bodyWidth, bodyHeight);
+      }
       if (!note.holding) {
         
         ctx.fillRect(x, yStart, NOTE_SIZE, NOTE_SIZE); // 頭
