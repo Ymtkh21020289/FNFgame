@@ -229,7 +229,7 @@ function drawNotes() {
 
       // ★ ホールド中はヒットボックスで止める
       if (note.holding) {
-        bodyBottom = Math.min(bodyBottom, judgeTopY);
+        bodyBottom = Math.min(bodyBottom, judgeCenterY);
       }
 
       const bodyHeight = bodyBottom - bodyTop;
