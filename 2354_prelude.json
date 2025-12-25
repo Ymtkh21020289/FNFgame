@@ -190,6 +190,26 @@
     { "beat": 54, "lane": 1, "type": "tap" },
     { "beat": 54.5, "lane": 0, "type": "tap" },
     { "beat": 55, "lane": 1, "type": "tap" },
-    { "beat": 55.5, "lane": 2, "type": "tap" }
+    { "beat": 55.5, "lane": 2, "type": "tap" },
+    { "beat": 56, "lane": 1, "type": "tap" },
+    { "beat": 57, "lane": 1, "type": "tap" },
+    { "beat": 58, "lane": 3, "type": "tap" },
+    { "beat": 59, "lane": 1, "type": "tap" },
+    { "beat": 59.5, "lane": 2, "type": "tap" },
+    { "beat": 60, "lane": 0, "type": "tap" },
+    { "beat": 61, "lane": 0, "type": "tap" },
+    { "beat": 62, "lane": 3, "type": "tap" },
+    { "beat": 62.25, "lane": 2, "type": "tap" },
+    { "beat": 62.5, "lane": 3, "type": "tap" },
+    { "beat": 63, "lane": 1, "type": "tap" },
+    { "beat": 63.5, "lane": 3, "type": "tap" },
+    { "beat": 64, "lane": 0, "type": "tap" },
+    { "beat": 64.5, "lane": 3, "type": "tap" },
+    { "beat": 65, "lane": 1, "type": "tap" },
+    { "beat": 65.5, "lane": 3, "type": "tap" },
+    { "beat": 66, "lane": 2, "type": "tap" },
+    { "beat": 66.5, "lane": 3, "type": "tap" },
+    { "beat": 67, "lane": 2, "type": "tap" },
+    { "beat": 67.5, "lane": 1, "type": "tap" }
   ]
 }
