@@ -1,8 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FNF風音ゲー</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: radial-gradient(circle at 50% 0%, #1a0640 0%, #0a0118 60%, #04010c 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: sans-serif;
+      overflow: hidden;
+    }
+    #game {
+      background: #04010f;
+      border-radius: 14px;
+      box-shadow:
+        0 0 0 1px rgba(0, 240, 255, 0.35),
+        0 0 30px rgba(0, 240, 255, 0.25),
+        0 0 60px rgba(255, 0, 200, 0.18);
+    }
+  </style>
 </head>
 <body>
   <canvas id="game" width="400" height="600"></canvas>

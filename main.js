@@ -56,12 +56,99 @@ const JUDGE = [
 ];
 
 const charts = [
-  { title: "チャーリーダッシュ！", file: "charlie.json" },
-  { title: "23時54分、陽の旅路へのプレリュード",   file: "2354_prelude.json" }
+  { title: "チャーリーダッシュ！", file: "charlie.json", artist: "??? ", bpm: "120-160" },
+  { title: "23時54分、陽の旅路へのプレリュード",   file: "2354_prelude.json", artist: "???", bpm: "—" }
 ];
 
 let selectedChartIndex = 0;
 let music = "";
+
+// ★ ネオン演出用のアニメーション時間
+function animClock() {
+  return performance.now() / 1000;
+}
+
+// ネオン文字を描画するヘルパー
+function neonText(text, x, y, {
+  font = "24px sans-serif",
+  color = "#00f0ff",
+  glow = "#00f0ff",
+  blur = 16,
+  align = "center"
+} = {}) {
+  ctx.save();
+  ctx.font = font;
+  ctx.textAlign = align;
+  ctx.textBaseline = "alphabetic";
+  ctx.shadowColor = glow;
+  ctx.shadowBlur = blur;
+  // 二度描きで発光を強調
+  ctx.fillStyle = color;
+  ctx.fillText(text, x, y);
+  ctx.shadowBlur = blur * 0.5;
+  ctx.fillText(text, x, y);
+  ctx.restore();
+}
+
+// 角丸矩形パス
+function roundRectPath(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+// ネオン風の背景（動くグリッド + ビネット）
+function drawNeonBackground(t) {
+  // ベースの縦グラデーション
+  const bg = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  bg.addColorStop(0, "#0b0221");
+  bg.addColorStop(0.5, "#170733");
+  bg.addColorStop(1, "#04010f");
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // 遠近感のあるスクロールグリッド（下半分）
+  ctx.save();
+  ctx.strokeStyle = "rgba(0, 240, 255, 0.12)";
+  ctx.lineWidth = 1;
+  const horizon = canvas.height * 0.55;
+  const scroll = (t * 60) % 40;
+  // 横線（奥に行くほど間隔が狭い）
+  for (let i = 0; i < 18; i++) {
+    const p = i / 18;
+    const y = horizon + (canvas.height - horizon) * (p * p) + scroll * (1 - p);
+    if (y < horizon || y > canvas.height) continue;
+    ctx.globalAlpha = 0.08 + p * 0.18;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(canvas.width, y);
+    ctx.stroke();
+  }
+  // 縦線（消失点に集まる）
+  ctx.globalAlpha = 0.15;
+  const vpx = canvas.width / 2;
+  for (let i = -6; i <= 6; i++) {
+    ctx.beginPath();
+    ctx.moveTo(vpx + i * 12, horizon);
+    ctx.lineTo(vpx + i * 90, canvas.height);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // 上部のネオングロー玉（ゆらぎ）
+  ctx.save();
+  const glowX = canvas.width / 2 + Math.sin(t * 0.7) * 60;
+  const g = ctx.createRadialGradient(glowX, 90, 10, glowX, 90, 220);
+  g.addColorStop(0, "rgba(255, 0, 200, 0.28)");
+  g.addColorStop(1, "rgba(255, 0, 200, 0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.restore();
+}
 
 async function loadMusic(url) {
   const res = await fetch(url);
@@ -161,11 +248,24 @@ function now() {
   return audioCtx.currentTime + offset - startTime;
 }
 
+function isLanePressed(lane) {
+  // pressedKeys は小文字キーで保持されるため小文字で判定する
+  return Object.keys(keyToLane).some(
+    k => keyToLane[k] === lane && pressedKeys[k.toLowerCase()]
+  );
+}
+
 function drawJudgeLine() {
-  ctx.strokeStyle = "black";
-  for (let x of laneX) {
+  ctx.save();
+  for (let i = 0; i < laneX.length; i++) {
+    const x = laneX[i];
+    ctx.strokeStyle = LANE_COLORS[i];
+    ctx.shadowColor = LANE_COLORS[i];
+    ctx.shadowBlur = isLanePressed(i) ? 18 : 6;
+    ctx.lineWidth = 2;
     ctx.strokeRect(x, judgeY, NOTE_SIZE, NOTE_SIZE);
   }
+  ctx.restore();
 }
 
 function drawNotes() {
@@ -193,6 +293,8 @@ function drawNotes() {
     const x = laneX[note.lane];
     const color = LANE_COLORS[note.lane];
     ctx.fillStyle = color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 12;
 
     if (note.type === "tap") {
       const dist = calcScrollDistance(
@@ -307,12 +409,17 @@ function drawJudgeText() {
 }
 
 function drawScore() {
+  ctx.save();
   ctx.font = "20px sans-serif";
-  ctx.fillStyle = "black";
   ctx.textAlign = "left";
-
+  ctx.fillStyle = "#ffffff";
+  ctx.shadowColor = "#00f0ff";
+  ctx.shadowBlur = 8;
   ctx.fillText(`Score: ${score}`, 10, 30);
+  ctx.fillStyle = combo > 0 ? "#ff8be6" : "#ffffff";
+  ctx.shadowColor = "#ff00c8";
   ctx.fillText(`Combo: ${combo}`, 10, 55);
+  ctx.restore();
 }
 
 function calcScrollDistance(noteTime, nowTime, scrollEvents, bpmEvents) {
@@ -346,43 +453,157 @@ function calcScrollDistance(noteTime, nowTime, scrollEvents, bpmEvents) {
 }
 
 function drawMenu() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const t = animClock();
+  drawNeonBackground(t);
 
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const pulse = 0.5 + 0.5 * Math.sin(t * 3);
+  neonText("FNF風リズムゲーム", canvas.width / 2, 210, {
+    font: "bold 34px sans-serif",
+    color: "#ffffff",
+    glow: "#ff00c8",
+    blur: 14 + pulse * 12
+  });
+  neonText("クリックしてスタート", canvas.width / 2, 300, {
+    font: "20px sans-serif",
+    color: "#00f0ff",
+    glow: "#00f0ff",
+    blur: 8 + pulse * 8
+  });
+}
 
-  ctx.fillStyle = "black";
-  ctx.textAlign = "center";
+// 曲カードの座標を計算（クリック判定と描画で共有）
+const CARD = { x: 40, w: 320, h: 78, gap: 16, top: 200 };
+function cardRect(i) {
+  return {
+    x: CARD.x,
+    y: CARD.top + i * (CARD.h + CARD.gap),
+    w: CARD.w,
+    h: CARD.h
+  };
+}
 
-  ctx.font = "40px sans-serif";
-  ctx.fillText("FNF風リズムゲーム", canvas.width / 2, 200);
-
-  ctx.font = "24px sans-serif";
-  ctx.fillText("クリックしてスタート", canvas.width / 2, 300);
+// エディタボタンの矩形
+function editorButtonRect() {
+  return { x: 110, y: canvas.height - 56, w: 180, h: 34 };
 }
 
 function drawChartSelect() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const t = animClock();
+  drawNeonBackground(t);
 
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // タイトル
+  neonText("SELECT SONG", canvas.width / 2, 90, {
+    font: "bold 34px sans-serif",
+    color: "#ffffff",
+    glow: "#00f0ff",
+    blur: 18
+  });
+  // タイトル下のネオンライン
+  ctx.save();
+  ctx.strokeStyle = "#ff00c8";
+  ctx.shadowColor = "#ff00c8";
+  ctx.shadowBlur = 12;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(60, 108);
+  ctx.lineTo(canvas.width - 60, 108);
+  ctx.stroke();
+  ctx.restore();
 
-  ctx.textAlign = "center";
-
-  ctx.fillStyle = "white";
-  ctx.font = "36px sans-serif";
-  ctx.fillText("SELECT CHART", canvas.width / 2, 120);
-
-  ctx.font = "24px sans-serif";
-
+  // 曲カード
   charts.forEach((chart, i) => {
-    if (i === selectedChartIndex) {
-      ctx.fillStyle = "cyan";
-      ctx.fillText("> " + chart.title + " <", canvas.width / 2, 200 + i * 40);
+    const r = cardRect(i);
+    const selected = i === selectedChartIndex;
+    const accent = LANE_COLORS[i % LANE_COLORS.length];
+    const pulse = 0.5 + 0.5 * Math.sin(t * 4);
+
+    ctx.save();
+    // カード背景
+    roundRectPath(r.x, r.y, r.w, r.h, 12);
+    const cardGrad = ctx.createLinearGradient(r.x, r.y, r.x, r.y + r.h);
+    if (selected) {
+      cardGrad.addColorStop(0, "rgba(0, 240, 255, 0.18)");
+      cardGrad.addColorStop(1, "rgba(255, 0, 200, 0.14)");
     } else {
-      ctx.fillStyle = "white";
-      ctx.fillText(chart.title, canvas.width / 2, 200 + i * 40);
+      cardGrad.addColorStop(0, "rgba(255,255,255,0.05)");
+      cardGrad.addColorStop(1, "rgba(255,255,255,0.02)");
     }
+    ctx.fillStyle = cardGrad;
+    ctx.fill();
+
+    // 枠線（選択時は発光）
+    ctx.lineWidth = selected ? 2.5 : 1.5;
+    ctx.strokeStyle = selected ? "#00f0ff" : "rgba(255,255,255,0.25)";
+    if (selected) {
+      ctx.shadowColor = "#00f0ff";
+      ctx.shadowBlur = 10 + pulse * 14;
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    // 左端のレーンカラーのアクセントバー
+    ctx.save();
+    roundRectPath(r.x, r.y, 6, r.h, 3);
+    ctx.fillStyle = accent;
+    ctx.shadowColor = accent;
+    ctx.shadowBlur = selected ? 12 : 4;
+    ctx.fill();
+    ctx.restore();
+
+    // 曲名
+    neonText(chart.title, r.x + 20, r.y + 34, {
+      font: (selected ? "bold " : "") + "17px sans-serif",
+      color: "#ffffff",
+      glow: selected ? "#00f0ff" : "rgba(0,0,0,0)",
+      blur: selected ? 10 : 0,
+      align: "left"
+    });
+
+    // メタ情報（BPMなど）
+    ctx.save();
+    ctx.font = "12px sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillStyle = selected ? "#ff8be6" : "rgba(255,255,255,0.5)";
+    ctx.fillText(`BPM ${chart.bpm ?? "—"}   ♪ ${chart.artist ?? ""}`, r.x + 20, r.y + 58);
+    ctx.restore();
+
+    // 選択インジケータ（右端の▶）
+    if (selected) {
+      neonText("▶", r.x + r.w - 22, r.y + r.h / 2 + 8, {
+        font: "20px sans-serif",
+        color: "#00f0ff",
+        glow: "#00f0ff",
+        blur: 12,
+        align: "center"
+      });
+    }
+  });
+
+  // 操作ヒント
+  ctx.save();
+  ctx.font = "12px sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillStyle = "rgba(255,255,255,0.45)";
+  ctx.fillText("↑ ↓ / クリックで選択   Enter で決定", canvas.width / 2, CARD.top + charts.length * (CARD.h + CARD.gap) + 24);
+  ctx.restore();
+
+  // 譜面エディタへのボタン
+  const eb = editorButtonRect();
+  ctx.save();
+  roundRectPath(eb.x, eb.y, eb.w, eb.h, 10);
+  ctx.fillStyle = "rgba(255, 0, 200, 0.12)";
+  ctx.fill();
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = "#ff00c8";
+  ctx.shadowColor = "#ff00c8";
+  ctx.shadowBlur = 10;
+  ctx.stroke();
+  ctx.restore();
+  neonText("✎ 譜面エディタ", eb.x + eb.w / 2, eb.y + 23, {
+    font: "14px sans-serif",
+    color: "#ffffff",
+    glow: "#ff00c8",
+    blur: 8
   });
 }
 
@@ -445,7 +666,6 @@ function gameLoop() {
     checkMiss();
     updateParticles();
     drawParticles();
-    drawJudgeLines();
     drawJudgeText();
     drawScore();
     requestAnimationFrame(gameLoop);
@@ -461,6 +681,51 @@ document.addEventListener("click", async () => {
   gameState = "playing";
 
   gameLoop();
+});
+
+// ★ 曲選択画面でのマウス操作
+function pointInRect(px, py, r) {
+  return px >= r.x && px <= r.x + r.w && py >= r.y && py <= r.y + r.h;
+}
+
+canvas.addEventListener("mousemove", e => {
+  if (gameState !== "select") return;
+  const rect = canvas.getBoundingClientRect();
+  const px = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const py = (e.clientY - rect.top) * (canvas.height / rect.height);
+  let hover = false;
+  for (let i = 0; i < charts.length; i++) {
+    if (pointInRect(px, py, cardRect(i))) hover = true;
+  }
+  if (pointInRect(px, py, editorButtonRect())) hover = true;
+  canvas.style.cursor = hover ? "pointer" : "default";
+});
+
+canvas.addEventListener("click", e => {
+  if (gameState !== "select") return;
+  const rect = canvas.getBoundingClientRect();
+  const px = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const py = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+  // 譜面エディタボタン
+  if (pointInRect(px, py, editorButtonRect())) {
+    window.location.href = "editor.html";
+    return;
+  }
+
+  // 曲カード：1クリックで選択、選択済みをもう一度クリックで決定
+  for (let i = 0; i < charts.length; i++) {
+    if (pointInRect(px, py, cardRect(i))) {
+      if (i === selectedChartIndex) {
+        audioCtx.resume().then(() => {
+          startGameWithChart(charts[selectedChartIndex].file);
+        });
+      } else {
+        selectedChartIndex = i;
+      }
+      return;
+    }
+  }
 });
 
 document.addEventListener("keydown", e => {
