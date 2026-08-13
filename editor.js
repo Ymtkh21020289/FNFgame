@@ -113,8 +113,11 @@ function snapBeat(beat) {
 // ========================================================
 function currentBeat() {
   if (isPlaying) {
+    // songTime = 実際の音楽再生位置(秒)。ゲーム本体と同じく、beat b は
+    // 音楽位置 = beatToTime(b) - offset のときに判定ラインに来る。
+    // よって beat = timeToBeat(songTime + offset)。
     const songTime = playStartSongTime + (audioCtx.currentTime - playStartCtxTime);
-    return timeToBeat(Math.max(0, songTime - offset));
+    return timeToBeat(Math.max(0, songTime + offset));
   }
   return pausedBeat;
 }
@@ -323,7 +326,9 @@ function play() {
   audioCtx.resume();
 
   const startBeat = pausedBeat;
-  playStartSongTime = beatToTime(startBeat) + offset;
+  // 再生ヘッドが startBeat のとき音楽位置は beatToTime(startBeat) - offset（ゲーム本体と同一）。
+  const bufPos = beatToTime(startBeat) - offset;
+  playStartSongTime = bufPos; // 音楽位置の基準（負の場合もある＝音楽開始前の無音区間）
   lastTickBeat = startBeat;
   lastMetBeat = startBeat;
 
@@ -331,7 +336,13 @@ function play() {
   musicSource.buffer = audioBuffer;
   musicSource.connect(audioCtx.destination);
   playStartCtxTime = audioCtx.currentTime;
-  musicSource.start(0, Math.max(0, playStartSongTime));
+  if (bufPos >= 0) {
+    // 音源の途中から再生
+    musicSource.start(0, bufPos);
+  } else {
+    // 音楽位置0が -bufPos 秒後に来るよう、未来の時刻から先頭再生（offset>0 で先頭付近から再生した場合）
+    musicSource.start(playStartCtxTime - bufPos, 0);
+  }
   musicSource.onended = () => { if (isPlaying) stop(); };
   isPlaying = true;
   el("playBtn").textContent = "⏸ 一時停止 (Space)";
