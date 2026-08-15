@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>譜面エディタ — FNF風音ゲー</title>
+  <style>
+    :root {
+      --cyan: #00f0ff;
+      --pink: #ff00c8;
+      --panel: rgba(255, 255, 255, 0.04);
+      --border: rgba(0, 240, 255, 0.35);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: radial-gradient(circle at 50% 0%, #1a0640 0%, #0a0118 55%, #04010c 100%);
+      color: #eaeaff;
+      font-family: sans-serif;
+      overflow: hidden;
+    }
+    #app {
+      display: flex;
+      height: 100vh;
+    }
+    /* ===== 左サイドパネル ===== */
+    #sidebar {
+      width: 300px;
+      flex: 0 0 300px;
+      padding: 18px 16px;
+      overflow-y: auto;
+      border-right: 1px solid var(--border);
+      background: rgba(4, 1, 15, 0.6);
+      box-shadow: 4px 0 24px rgba(0, 240, 255, 0.12);
+    }
+    h1 {
+      font-size: 20px;
+      margin: 0 0 4px;
+      letter-spacing: 1px;
+      color: #fff;
+      text-shadow: 0 0 10px var(--cyan), 0 0 20px var(--cyan);
+    }
+    .subtitle {
+      font-size: 11px;
+      color: #9a8fd6;
+      margin-bottom: 18px;
+    }
+    .group {
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 14px;
+      background: var(--panel);
+    }
+    .group h2 {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--pink);
+      margin: 0 0 10px;
+      text-shadow: 0 0 8px rgba(255, 0, 200, 0.6);
+    }
+    label { display: block; font-size: 12px; margin-bottom: 4px; color: #c7c1ee; }
+    .row { display: flex; gap: 8px; margin-bottom: 10px; }
+    .row > div { flex: 1; }
+    input[type="text"], input[type="number"], select, textarea {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      border-radius: 6px;
+      color: #eaeaff;
+      padding: 6px 8px;
+      font-size: 13px;
+      font-family: inherit;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--cyan);
+      box-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
+    }
+    textarea { resize: vertical; min-height: 90px; font-family: monospace; font-size: 11px; }
+    button {
+      cursor: pointer;
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid var(--cyan);
+      border-radius: 8px;
+      color: #fff;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-family: inherit;
+      transition: all 0.12s;
+      text-shadow: 0 0 6px var(--cyan);
+    }
+    button:hover { background: rgba(0, 240, 255, 0.25); box-shadow: 0 0 12px rgba(0, 240, 255, 0.5); }
+    button.pink { border-color: var(--pink); text-shadow: 0 0 6px var(--pink); background: rgba(255, 0, 200, 0.1); }
+    button.pink:hover { background: rgba(255, 0, 200, 0.25); box-shadow: 0 0 12px rgba(255, 0, 200, 0.5); }
+    button.wide { width: 100%; margin-bottom: 8px; }
+    .btnrow { display: flex; gap: 8px; }
+    .btnrow button { flex: 1; }
+    .hint { font-size: 11px; color: #8a82b8; line-height: 1.5; }
+    .hint b { color: var(--cyan); }
+    .file-btn {
+      display: block; text-align: center;
+      border: 1px dashed rgba(0, 240, 255, 0.5);
+      padding: 10px; border-radius: 8px; margin-bottom: 8px;
+      color: #c7c1ee; font-size: 12px;
+    }
+    .file-btn:hover { background: rgba(0, 240, 255, 0.08); }
+    input[type="file"] { display: none; }
+    #status { font-size: 11px; color: var(--cyan); min-height: 16px; margin-top: 4px; }
+    a.back { color: var(--pink); text-decoration: none; font-size: 12px; }
+    a.back:hover { text-decoration: underline; }
+    details summary { cursor: pointer; font-size: 12px; color: var(--pink); margin-bottom: 8px; }
+    /* ===== メインエリア ===== */
+    #main {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    #transport {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(4, 1, 15, 0.5);
+    }
+    #transport .time { font-family: monospace; font-size: 14px; color: var(--cyan); min-width: 150px; }
+    #transport .spacer { flex: 1; }
+    #gridwrap { flex: 1; position: relative; overflow: hidden; }
+    #grid { display: block; width: 100%; height: 100%; cursor: crosshair; }
+    .zoombtn { padding: 6px 10px; }
+    .chk { font-size: 12px; color: #c7c1ee; display: flex; align-items: center; gap: 4px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="sidebar">
+      <h1>譜面エディタ</h1>
+      <div class="subtitle">NEON CHART EDITOR — <a class="back" href="index.html">← ゲームに戻る</a></div>
+
+      <div class="group">
+        <h2>楽曲</h2>
+        <label class="file-btn" id="audioLabel">🎵 音源ファイルを選択 (.ogg/.mp3/.wav)
+          <input type="file" id="audioFile" accept="audio/*">
+        </label>
+        <label>曲名</label>
+        <input type="text" id="songTitle" placeholder="曲のタイトル">
+        <label>音源ファイル名（出力JSON用）</label>
+        <input type="text" id="musicName" placeholder="song.ogg">
+      </div>
+
+      <div class="group">
+        <h2>タイミング</h2>
+        <div class="row">
+          <div>
+            <label>BPM</label>
+            <input type="number" id="bpm" value="120" step="0.1" min="1">
+          </div>
+          <div>
+            <label>オフセット(秒)</label>
+            <input type="number" id="offset" value="0" step="0.01">
+          </div>
+        </div>
+        <label>スナップ（1拍の分割）</label>
+        <select id="snap">
+          <option value="1">1/1（1拍）</option>
+          <option value="2">1/2</option>
+          <option value="4" selected>1/4</option>
+          <option value="3">1/3（3連符）</option>
+          <option value="6">1/6</option>
+          <option value="8">1/8</option>
+          <option value="16">1/16</option>
+        </select>
+      </div>
+
+      <div class="group">
+        <h2>再生</h2>
+        <div class="btnrow">
+          <button id="playBtn">▶ 再生 (Space)</button>
+          <button id="stopBtn" class="pink">■ 停止</button>
+        </div>
+        <label class="chk" style="margin-top:10px"><input type="checkbox" id="tickChk" checked> ノーツヒット音を鳴らす</label>
+        <label class="chk"><input type="checkbox" id="metChk"> メトロノーム</label>
+      </div>
+
+      <div class="group">
+        <h2>入出力</h2>
+        <button class="wide pink" id="exportBtn">⬇ JSONをダウンロード</button>
+        <button class="wide" id="copyBtn">📋 クリップボードにコピー</button>
+        <label class="file-btn">📂 既存の譜面JSONを読み込む
+          <input type="file" id="importFile" accept=".json,application/json">
+        </label>
+        <button class="wide pink" id="clearBtn">🗑 全ノーツを消去</button>
+        <div id="status"></div>
+      </div>
+
+      <div class="group">
+        <h2>使い方</h2>
+        <div class="hint">
+          ・レーン上を<b>クリック</b>でタップノーツを配置<br>
+          ・下方向に<b>ドラッグ</b>でホールドノーツ<br>
+          ・既存ノーツを<b>クリック</b>で削除<br>
+          ・<b>ホイール</b>で時間をスクロール<br>
+          ・<b>Space</b>で再生/一時停止<br>
+          ・レーンは <b>D F J K</b>（←↑↓→）に対応
+        </div>
+      </div>
+
+      <details class="group">
+        <summary>詳細設定（BPM/スクロール変化）</summary>
+        <label>bpmEvents (JSON配列)</label>
+        <textarea id="bpmEventsText">[{ "beat": 0, "bpm": 120 }]</textarea>
+        <label>scrollEvents (JSON配列)</label>
+        <textarea id="scrollEventsText">[{ "beat": 0, "speed": 1.0 }]</textarea>
+        <button class="wide" id="applyAdvBtn">適用</button>
+        <div class="hint">複数BPMや速度変化を使う場合はここを編集してください。BPM欄は先頭のbpmと同期します。</div>
+      </details>
+    </div>
+
+    <div id="main">
+      <div id="transport">
+        <span class="time" id="timeReadout">Beat 0.00 | 0.00s</span>
+        <span class="chk">ノーツ数: <b id="noteCount" style="color:var(--cyan)">0</b></span>
+        <span class="spacer"></span>
+        <span class="chk">ズーム</span>
+        <button class="zoombtn" id="zoomOut">−</button>
+        <button class="zoombtn" id="zoomIn">+</button>
+      </div>
+      <div id="gridwrap">
+        <canvas id="grid"></canvas>
+      </div>
+    </div>
+  </div>
+  <script src="editor.js"></script>
+</body>
+</html>
